@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portal de aulas interativas de Informática Básica para o curso superior de Negócios Imobiliários do IFPB.">
+  <meta name="theme-color" content="#102a38">
+  <title>Portal de Informática — Negócios Imobiliários</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#biblioteca">Ir para as aulas</a>
+  <div class="page-glow glow-one" aria-hidden="true"></div>
+  <div class="page-glow glow-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="Voltar ao início">
+      <span class="brand-mark" aria-hidden="true">⌂</span>
+      <span><strong>IFPB</strong><small>Negócios Imobiliários</small></span>
+    </a>
+    <nav class="main-nav" aria-label="Navegação principal">
+      <a href="#aula-atual">Aula atual</a>
+      <a href="#biblioteca">Biblioteca</a>
+      <a href="#como-atualizar">Como funciona</a>
+    </nav>
+    <a class="header-cta" id="headerLatest" href="#aula-atual">Abrir aula</a>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy">
+        <p class="eyebrow">Informática básica · Trilha semanal</p>
+        <h1>Tecnologia para<br><span>Negócios Imobiliários</span></h1>
+        <p class="hero-text">Acesse as apresentações interativas da disciplina, revise os conteúdos e pratique no seu próprio ritmo.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#biblioteca">Explorar aulas <span aria-hidden="true">↓</span></a>
+          <a class="button secondary" id="heroLatest" href="#aula-atual">Abrir aula mais recente <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="hero-meta"><span>Professor José Raimundo</span><span>•</span><span>Curso Superior</span><span>•</span><span>IFPB</span></div>
+      </div>
+
+      <div class="hero-panel" aria-label="Resumo do portal">
+        <div class="panel-label"><span class="live-dot"></span> Portal atualizado</div>
+        <div class="blueprint" aria-hidden="true">
+          <span class="building b1"></span><span class="building b2"></span><span class="building b3"></span>
+          <span class="route r1"></span><span class="route r2"></span>
+          <span class="node n1"></span><span class="node n2"></span><span class="node n3"></span>
+        </div>
+        <div class="panel-stats">
+          <div><strong id="publishedCount">2</strong><span>aulas publicadas</span></div>
+          <div><strong id="slideCount">47</strong><span>slides interativos</span></div>
+          <div><strong>24h</strong><span>acesso disponível</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="latest-section" id="aula-atual">
+      <div class="section-heading">
+        <div><p class="eyebrow">Continue aprendendo</p><h2>Aula em destaque</h2></div>
+        <p>O conteúdo mais recente da nossa trilha.</p>
+      </div>
+      <div id="featuredLesson" class="featured-card" aria-live="polite"></div>
+    </section>
+
+    <section class="library-section" id="biblioteca">
+      <div class="section-heading library-heading">
+        <div><p class="eyebrow">Materiais da disciplina</p><h2>Biblioteca de aulas</h2></div>
+        <p id="resultSummary">2 aulas disponíveis</p>
+      </div>
+
+      <div class="toolbar" role="search">
+        <label class="search-box" for="lessonSearch">
+          <span aria-hidden="true">⌕</span>
+          <input id="lessonSearch" type="search" placeholder="Pesquisar por tema, conteúdo ou palavra-chave..." autocomplete="off">
+          <kbd>/</kbd>
+        </label>
+        <div class="filters" aria-label="Filtrar aulas">
+          <button class="filter active" data-filter="todas" aria-pressed="true">Todas</button>
+          <button class="filter" data-filter="disponivel" aria-pressed="false">Disponíveis</button>
+          <button class="filter" data-filter="em-breve" aria-pressed="false">Em breve</button>
+        </div>
+      </div>
+
+      <div class="lesson-grid" id="lessonGrid" aria-live="polite"></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <span aria-hidden="true">⌕</span><h3>Nenhuma aula encontrada</h3><p>Tente outra palavra ou altere o filtro selecionado.</p>
+      </div>
+    </section>
+
+    <section class="update-section" id="como-atualizar">
+      <div class="update-copy">
+        <p class="eyebrow">Um portal em crescimento</p>
+        <h2>Novos conteúdos serão adicionados a cada semana</h2>
+        <p>A página organiza automaticamente os materiais cadastrados. As aulas futuras aparecem assim que forem publicadas.</p>
+      </div>
+      <div class="update-steps">
+        <div><span>01</span><p><strong>Explore</strong>Escolha uma aula na biblioteca.</p></div>
+        <div><span>02</span><p><strong>Interaja</strong>Use atividades, abas, simulações e quizzes.</p></div>
+        <div><span>03</span><p><strong>Revise</strong>Retorne quando quiser para consolidar o conteúdo.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><strong>Portal de Informática</strong><span>Negócios Imobiliários · IFPB</span></div>
+    <p>Professor José Raimundo · Materiais didáticos interativos</p>
+    <a href="#inicio">Voltar ao início ↑</a>
+  </footer>
+
+  <script src="./dados/aulas.js"></script>
+  <script src="./assets/portal.js"></script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Apresentação interativa sobre acolhimento, dispositivos digitais e Google Sala de Aula para o curso superior de Negócios Imobiliários.">
+  <title>Acolhimento, Dispositivos e Google Sala de Aula | Negócios Imobiliários</title>
+  <style>
+    :root {
+      --navy: #102a38;
+      --petrol: #176b70;
+      --petrol-dark: #0f5055;
+      --green: #315f4f;
+      --green-soft: #dcebe5;
+      --gold: #c59742;
+      --cream: #f4f1e9;
+      --paper: #fcfbf7;
+      --ink: #17252c;
+      --muted: #5e6b70;
+      --line: #ccd7d5;
+      --correct: #257653;
+      --wrong: #a84040;
+      --shadow: 0 22px 70px rgba(15, 42, 56, .18);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(23,107,112,.17), transparent 29%),
+        radial-gradient(circle at 88% 83%, rgba(197,151,66,.14), transparent 25%),
+        linear-gradient(135deg, #e7ece9, #d7e1df);
+    }
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .deck { position: relative; width: 100%; height: 100%; }
+    .progress-track { position: fixed; z-index: 50; top: 0; left: 0; right: 0; height: 6px; background: rgba(255,255,255,.5); }
+    .progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--petrol), var(--gold)); transition: width .35s ease; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: clamp(14px, 2vh, 25px);
+      padding: clamp(28px, 4vw, 64px) clamp(28px, 6vw, 92px) clamp(82px, 10vh, 110px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px) scale(.99);
+      transition: opacity .35s ease, transform .4s ease, visibility .4s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .slide.active { opacity: 1; visibility: visible; transform: translateX(0) scale(1); z-index: 5; }
+    .slide.leaving { transform: translateX(-35px) scale(.99); }
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border: 1px solid rgba(23,107,112,.13);
+      border-radius: 28px;
+      pointer-events: none;
+    }
+    .slide > * { position: relative; z-index: 1; }
+
+    .eyebrow { color: var(--petrol); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: clamp(.68rem, 1vw, .92rem); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.6rem, 6.3vw, 6.2rem); line-height: .98; letter-spacing: -.045em; margin-bottom: 22px; }
+    h2 { font-family: Georgia, "Times New Roman", serif; color: var(--navy); font-size: clamp(2rem, 4vw, 4.2rem); line-height: 1.05; letter-spacing: -.03em; margin-bottom: 0; }
+    h3 { color: var(--navy); font-size: clamp(1.05rem, 1.7vw, 1.45rem); line-height: 1.2; margin-bottom: 8px; }
+    p, li { font-size: clamp(.95rem, 1.35vw, 1.3rem); line-height: 1.45; }
+    .lead { color: var(--muted); font-size: clamp(1.1rem, 1.8vw, 1.55rem); max-width: 900px; }
+    .small { font-size: clamp(.78rem, 1vw, .95rem); color: var(--muted); }
+    .gold { color: var(--gold); }
+
+    .title-slide {
+      grid-template-rows: 1fr;
+      align-items: center;
+      color: white;
+      background:
+        linear-gradient(112deg, rgba(12,39,52,.98) 0 52%, rgba(15,80,85,.92) 52% 100%),
+        var(--navy);
+    }
+    .title-slide::after {
+      content: "";
+      position: absolute;
+      width: min(38vw, 530px);
+      aspect-ratio: 1;
+      right: 6vw;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 2px solid rgba(255,255,255,.15);
+      border-radius: 50%;
+      box-shadow: 0 0 0 42px rgba(255,255,255,.035), 0 0 0 92px rgba(255,255,255,.025);
+    }
+    .title-slide h1 { color: white; max-width: 870px; }
+    .title-slide .eyebrow { color: #b9ded7; }
+    .title-slide .lead { color: #dbe9e7; max-width: 750px; }
+    .title-meta { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 34px; color: #dbe9e7; font-weight: 650; }
+    .title-device {
+      position: absolute; right: 9vw; top: 50%; transform: translateY(-50%);
+      width: min(26vw, 350px); z-index: 2;
+    }
+    .screen-illustration { border: 4px solid rgba(255,255,255,.8); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.1); backdrop-filter: blur(8px); box-shadow: var(--shadow); }
+    .screen-illustration .bar { height: 8px; border-radius: 10px; margin-bottom: 9px; background: rgba(255,255,255,.7); }
+    .screen-illustration .bar:nth-child(2) { width: 70%; background: #c8a85d; }
+    .screen-illustration .rooms { display: grid; grid-template-columns: 1.2fr .8fr; gap: 8px; height: 150px; }
+    .screen-illustration .rooms span { border: 1px solid rgba(255,255,255,.5); background: rgba(255,255,255,.12); border-radius: 8px; }
+
+    .header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--line); padding-bottom: 17px; }
+    .section-number { font-family: Georgia, serif; color: rgba(23,107,112,.23); font-size: clamp(2.5rem, 6vw, 5.5rem); line-height: .75; }
+    .content { align-self: center; width: 100%; }
+    .two-col { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(25px, 5vw, 70px); align-items: center; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(14px, 2vw, 26px); }
+    .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(12px, 1.5vw, 20px); }
+    .stack { display: grid; gap: 16px; }
+
+    .card { background: rgba(252,251,247,.88); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(17px, 2.3vw, 30px); box-shadow: 0 13px 36px rgba(15,42,56,.09); }
+    .card.accent { border-top: 5px solid var(--petrol); }
+    .card.gold-top { border-top: 5px solid var(--gold); }
+    .card.green-top { border-top: 5px solid var(--green); }
+    .icon { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 16px; background: var(--green-soft); color: var(--petrol-dark); font-size: 30px; margin-bottom: 15px; }
+    .clean-list { list-style: none; padding: 0; margin: 14px 0 0; }
+    .clean-list li { position: relative; padding-left: 28px; margin: 9px 0; }
+    .clean-list li::before { content: "✓"; position: absolute; left: 0; color: var(--correct); font-weight: 900; }
+
+    .warmup { display: grid; grid-template-columns: repeat(2, minmax(230px, 1fr)); gap: 18px; }
+    .warmup button, .scenario-choice, .option, .sim-action, .reveal-btn, .primary-btn {
+      cursor: pointer; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.82); color: var(--ink); padding: 15px 18px; text-align: left; transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .warmup button:hover, .scenario-choice:hover, .option:hover, .sim-action:hover, .reveal-btn:hover, .primary-btn:hover { transform: translateY(-2px); border-color: var(--petrol); box-shadow: 0 9px 25px rgba(23,107,112,.13); }
+    .warmup button.selected { border-color: var(--petrol); background: var(--green-soft); color: var(--petrol-dark); font-weight: 750; }
+    .warmup-result { margin-top: 22px; min-height: 54px; padding: 14px 18px; border-left: 5px solid var(--gold); background: rgba(255,255,255,.65); border-radius: 0 14px 14px 0; }
+
+    .device {
+      min-height: 315px; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .device::after { content: attr(data-mark); position: absolute; right: -3px; bottom: -30px; font-size: 115px; opacity: .055; }
+    .device .device-name { font-family: Georgia, serif; font-size: clamp(1.5rem, 2.6vw, 2.25rem); color: var(--navy); }
+    .device .best { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--line); color: var(--green); font-weight: 800; }
+
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: stretch; }
+    .flow-step { position: relative; padding: 24px 18px; background: white; border-radius: 18px; border: 1px solid var(--line); text-align: center; }
+    .flow-step:not(:last-child)::after { content: "→"; position: absolute; right: -17px; top: 50%; transform: translateY(-50%); z-index: 2; color: var(--gold); font-size: 25px; font-weight: 900; }
+    .flow-step b { display: block; color: var(--petrol); margin-bottom: 7px; font-size: clamp(1rem,1.5vw,1.25rem); }
+
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .tab { cursor: pointer; border: 1px solid var(--line); background: transparent; padding: 10px 16px; border-radius: 999px; color: var(--muted); font-weight: 750; }
+    .tab.active { background: var(--petrol); color: white; border-color: var(--petrol); }
+    .tab-panel { display: none; animation: fadeUp .3s ease; }
+    .tab-panel.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; border-radius: 17px; border: 1px solid var(--line); background: rgba(255,255,255,.76); }
+    .compare-table th, .compare-table td { padding: clamp(10px,1.5vw,18px); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; font-size: clamp(.78rem,1.1vw,1rem); }
+    .compare-table th { background: var(--navy); color: white; }
+    .compare-table tr:last-child td { border-bottom: 0; }
+    .compare-table th:last-child, .compare-table td:last-child { border-right: 0; }
+    .stars { color: var(--gold); letter-spacing: 1px; }
+
+    .scenario-box { display: grid; grid-template-columns: .75fr 1.25fr; gap: 26px; align-items: stretch; }
+    .scenario-copy { background: linear-gradient(145deg, var(--navy), var(--petrol-dark)); color: white; border-radius: var(--radius); padding: clamp(24px,3vw,42px); display: flex; flex-direction: column; justify-content: center; }
+    .scenario-copy h3 { color: white; font-family: Georgia, serif; font-size: clamp(1.5rem,2.7vw,2.5rem); }
+    .scenario-copy p { color: #dbe9e7; }
+    .scenario-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .scenario-choice { display: flex; gap: 12px; align-items: center; font-weight: 750; }
+    .scenario-choice.correct { background: #e3f3ea; border-color: var(--correct); }
+    .scenario-choice.wrong { background: #f7e6e6; border-color: var(--wrong); }
+    .scenario-feedback { grid-column: 1 / -1; min-height: 54px; color: var(--muted); padding-top: 10px; }
+
+    .classroom-shell { background: white; border: 1px solid var(--line); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); }
+    .classroom-top { background: var(--navy); color: white; padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; }
+    .classroom-top b { font-size: 1.1rem; }
+    .classroom-hero { min-height: 145px; padding: 28px; color: white; background: linear-gradient(120deg, var(--petrol), var(--green)); display: flex; flex-direction: column; justify-content: end; }
+    .classroom-hero h3 { color: white; font-family: Georgia, serif; font-size: clamp(1.4rem,2.4vw,2.2rem); margin: 0; }
+    .classroom-body { display: grid; grid-template-columns: .4fr 1.6fr; gap: 18px; padding: 20px; }
+    .classroom-item { border: 1px solid var(--line); padding: 16px; border-radius: 14px; margin-bottom: 12px; }
+
+    .simulator { display: grid; grid-template-columns: .85fr 1.15fr; gap: 24px; }
+    .sim-steps { counter-reset: sim; }
+    .sim-step { opacity: .45; padding: 13px 16px 13px 48px; border-left: 3px solid var(--line); position: relative; transition: .2s; }
+    .sim-step::before { counter-increment: sim; content: counter(sim); position: absolute; left: 12px; top: 12px; width: 25px; height: 25px; border-radius: 50%; display: grid; place-items: center; background: var(--line); font-weight: 900; }
+    .sim-step.done { opacity: 1; border-color: var(--correct); }
+    .sim-step.done::before { background: var(--correct); color: white; content: "✓"; }
+    .sim-screen { min-height: 350px; background: white; border: 1px solid var(--line); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; }
+    .sim-file { border: 2px dashed var(--line); padding: 17px; border-radius: 14px; margin: 16px 0; color: var(--muted); }
+    .sim-file.attached { border-style: solid; border-color: var(--correct); background: #e8f4ed; color: var(--correct); }
+    .sim-actions { margin-top: auto; display: flex; gap: 12px; flex-wrap: wrap; }
+    .sim-action.primary, .primary-btn { background: var(--petrol); color: white; border-color: var(--petrol); text-align: center; font-weight: 800; }
+    .sim-action:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .security-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .security-tip { display: flex; gap: 15px; align-items: flex-start; padding: 16px; border-bottom: 1px solid var(--line); }
+    .security-tip b { display: block; color: var(--navy); margin-bottom: 5px; }
+    .security-tip span:first-child { flex: 0 0 42px; height: 42px; display: grid; place-items: center; background: var(--green-soft); border-radius: 12px; font-size: 22px; }
+
+    .quiz-wrap { max-width: 1100px; margin: auto; width: 100%; }
+    .quiz-meta { display: flex; justify-content: space-between; color: var(--muted); font-weight: 750; margin-bottom: 13px; }
+    .quiz-question { font-family: Georgia, serif; color: var(--navy); font-size: clamp(1.45rem,2.7vw,2.45rem); line-height: 1.15; margin: 0 0 20px; }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .option { min-height: 66px; display: flex; align-items: center; gap: 12px; }
+    .option .letter { flex: 0 0 33px; width: 33px; height: 33px; display: grid; place-items: center; border-radius: 9px; background: var(--green-soft); color: var(--petrol-dark); font-weight: 900; }
+    .option.correct { background: #e3f3ea; border-color: var(--correct); }
+    .option.wrong { background: #f7e6e6; border-color: var(--wrong); }
+    .option:disabled { cursor: default; transform: none; box-shadow: none; }
+    .quiz-feedback { min-height: 66px; padding: 15px 18px; margin-top: 16px; border-radius: 14px; background: rgba(255,255,255,.65); color: var(--muted); }
+    .quiz-next { display: none; margin: 15px 0 0 auto; min-width: 180px; }
+    .quiz-next.visible { display: block; }
+
+    .result-screen { text-align: center; max-width: 850px; margin: auto; }
+    .medal { width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 18px; font-size: 76px; background: linear-gradient(145deg, #f2d489, var(--gold)); box-shadow: 0 0 0 15px rgba(197,151,66,.15), var(--shadow); }
+    .result-score { font-family: Georgia, serif; font-size: clamp(2.5rem,6vw,5.6rem); color: var(--navy); margin: 0; }
+
+    .takeaways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .takeaway { border-top: 1px solid var(--line); padding-top: 18px; }
+    .takeaway .big { color: var(--petrol); font-family: Georgia, serif; font-size: clamp(2.3rem,5vw,4.8rem); line-height: 1; }
+    .closing { background: linear-gradient(135deg, #f6f3eb, #dfeae5); }
+
+    .controls {
+      position: fixed; z-index: 60; left: 50%; bottom: 18px; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 8px; padding: 8px;
+      background: rgba(16,42,56,.91); border: 1px solid rgba(255,255,255,.22); border-radius: 18px;
+      box-shadow: 0 10px 35px rgba(0,0,0,.22); backdrop-filter: blur(12px);
+    }
+    .nav-btn { width: 46px; height: 42px; cursor: pointer; border: 0; border-radius: 12px; background: rgba(255,255,255,.1); color: white; font-size: 23px; transition: .2s; }
+    .nav-btn:hover { background: var(--petrol); }
+    .nav-btn:disabled { opacity: .35; cursor: default; }
+    .slide-counter { min-width: 88px; text-align: center; color: white; font-weight: 800; font-size: .9rem; }
+    .help { position: fixed; z-index: 61; right: 22px; bottom: 25px; color: var(--navy); font-size: .76rem; background: rgba(255,255,255,.76); padding: 7px 11px; border-radius: 10px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+    @media (max-width: 980px) {
+      .title-device { opacity: .18; right: 4vw; width: 45vw; }
+      .two-col, .scenario-box, .simulator { grid-template-columns: 1fr; }
+      .four-col { grid-template-columns: 1fr 1fr; }
+      .three-col, .takeaways { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .flow-step:nth-child(2)::after { display: none; }
+      .classroom-body { grid-template-columns: 1fr; }
+      .device { min-height: auto; }
+    }
+    @media (max-width: 650px) {
+      .slide { padding: 24px 23px 90px; }
+      .slide::before { inset: 9px; }
+      .header { align-items: flex-start; }
+      .four-col, .warmup, .scenario-choices, .options, .security-grid, .flow { grid-template-columns: 1fr; }
+      .flow-step:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -22px; transform: translateX(50%); }
+      .help { display: none; }
+      .controls { bottom: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+    @media print {
+      html, body { overflow: visible; background: white; }
+      .deck { height: auto; }
+      .slide { position: relative; min-height: 100vh; opacity: 1; visibility: visible; transform: none; page-break-after: always; }
+      .controls, .progress-track, .help { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-live="polite">
+    <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+
+    <section class="slide title-slide active" aria-label="Slide 1">
+      <div>
+        <div class="eyebrow">Curso Superior de Tecnologia em Negócios Imobiliários</div>
+        <h1>Acolhimento,<br><span class="gold">tecnologia</span> e primeiros passos</h1>
+        <p class="lead">Ambientação à disciplina, funcionamento dos dispositivos digitais e introdução ao Google Sala de Aula.</p>
+        <div class="title-meta"><span>Professor José Raimundo</span><span>•</span><span>IFPB</span></div>
+      </div>
+      <div class="title-device" aria-hidden="true">
+        <div class="screen-illustration">
+          <div class="bar"></div><div class="bar"></div>
+          <div class="rooms"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 2">
+      <header class="header"><div><div class="eyebrow">Boas-vindas</div><h2>Hoje começa nossa jornada digital</h2></div><div class="section-number">01</div></header>
+      <div class="content two-col">
+        <div>
+          <p class="lead">Tecnologia, aqui, não é um fim: é uma ferramenta para estudar, comunicar, organizar informações e atuar com segurança no mercado imobiliário.</p>
+          <ul class="clean-list">
+            <li>Aprenderemos em um ambiente acolhedor e colaborativo.</li>
+            <li>Dúvidas são parte do processo — perguntar é bem-vindo.</li>
+            <li>Vamos ligar cada conceito a situações profissionais reais.</li>
+          </ul>
+        </div>
+        <div class="card accent">
+          <div class="icon" aria-hidden="true">⌂</div>
+          <h3>Nosso acordo de convivência</h3>
+          <p>Respeito aos diferentes níveis de experiência, participação ativa, cuidado com os equipamentos e responsabilidade no ambiente digital.</p>
+          <p class="small">Converse com uma pessoa próxima: o que você espera aprender nesta disciplina?</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 3">
+      <header class="header"><div><div class="eyebrow">Aquecimento interativo</div><h2>Como a tecnologia já faz parte do seu dia?</h2></div><div class="section-number">02</div></header>
+      <div class="content">
+        <p class="lead">Clique nas opções que fazem parte da sua rotina. Você pode escolher mais de uma.</p>
+        <div class="warmup" id="warmup">
+          <button type="button" data-label="Pesquisar imóveis e localizações">🔎 Pesquisar imóveis e localizações</button>
+          <button type="button" data-label="Conversar com clientes e colegas">💬 Conversar com clientes e colegas</button>
+          <button type="button" data-label="Criar documentos e planilhas">📄 Criar documentos e planilhas</button>
+          <button type="button" data-label="Estudar por plataformas digitais">🎓 Estudar por plataformas digitais</button>
+          <button type="button" data-label="Registrar fotos e vídeos">📷 Registrar fotos e vídeos</button>
+          <button type="button" data-label="Usar mapas e rotas">🗺️ Usar mapas e rotas</button>
+        </div>
+        <div class="warmup-result" id="warmupResult">Selecione suas experiências. A turma provavelmente já traz muito conhecimento para compartilhar!</div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 4">
+      <header class="header"><div><div class="eyebrow">Objetivos da aula</div><h2>Ao final, você saberá escolher e usar melhor</h2></div><div class="section-number">03</div></header>
+      <div class="content three-col">
+        <article class="card accent"><div class="icon">⚙</div><h3>Entender</h3><p>Como entrada, processamento, memória, armazenamento e saída trabalham juntos.</p></article>
+        <article class="card gold-top"><div class="icon">▣</div><h3>Comparar</h3><p>Desktop, notebook, tablet e smartphone conforme mobilidade, desempenho e tarefa.</p></article>
+        <article class="card green-top"><div class="icon">✓</div><h3>Participar</h3><p>Acessar a turma, localizar materiais e entregar atividades no Google Sala de Aula.</p></article>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 5">
+      <header class="header"><div><div class="eyebrow">Conceito essencial</div><h2>Todo dispositivo transforma dados em informação útil</h2></div><div class="section-number">04</div></header>
+      <div class="content">
+        <div class="flow">
+          <div class="flow-step"><b>1. Entrada</b><span>Teclado, toque, câmera, microfone e sensores</span></div>
+          <div class="flow-step"><b>2. Processamento</b><span>O processador executa instruções e cálculos</span></div>
+          <div class="flow-step"><b>3. Armazenamento</b><span>Arquivos e aplicativos ficam registrados</span></div>
+          <div class="flow-step"><b>4. Saída</b><span>Tela, áudio, impressão e compartilhamento</span></div>
+        </div>
+        <div class="card" style="margin-top:26px">
+          <h3>Exemplo imobiliário</h3>
+          <p style="margin-bottom:0"><b>Você fotografa um imóvel</b> → o dispositivo processa a imagem → salva o arquivo → exibe a foto e permite enviá-la ao cliente.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 6">
+      <header class="header"><div><div class="eyebrow">Por dentro do equipamento</div><h2>Hardware e software precisam trabalhar em conjunto</h2></div><div class="section-number">05</div></header>
+      <div class="content two-col">
+        <div class="card accent">
+          <div class="icon">▦</div><h3>Hardware: a parte física</h3>
+          <p>Processador, memória RAM, SSD, tela, teclado, bateria, câmera e conexões.</p>
+          <p class="small"><b>Analogia:</b> é a estrutura, as instalações e os equipamentos de um imóvel.</p>
+        </div>
+        <div class="card gold-top">
+          <div class="icon">{ }</div><h3>Software: instruções e serviços</h3>
+          <p>Sistema operacional, navegador, aplicativo de mensagens, editor de textos e Google Sala de Aula.</p>
+          <p class="small"><b>Analogia:</b> é o conjunto de regras e atividades que dá função aos espaços.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 7">
+      <header class="header"><div><div class="eyebrow">Componentes fundamentais</div><h2>Cada componente responde a uma necessidade</h2></div><div class="section-number">06</div></header>
+      <div class="content">
+        <div class="tabs" role="tablist" aria-label="Componentes">
+          <button class="tab active" data-tab="cpu" role="tab">Processador</button>
+          <button class="tab" data-tab="ram" role="tab">Memória RAM</button>
+          <button class="tab" data-tab="ssd" role="tab">Armazenamento</button>
+          <button class="tab" data-tab="so" role="tab">Sistema operacional</button>
+          <button class="tab" data-tab="rede" role="tab">Conectividade</button>
+        </div>
+        <div class="card">
+          <div class="tab-panel active" data-panel="cpu"><h3>Processador (CPU)</h3><p>Executa instruções e coordena as tarefas. Um processador mais capaz ajuda em multitarefa, videoconferência e manipulação de arquivos pesados.</p><p class="small">Pense nele como a equipe que executa o trabalho.</p></div>
+          <div class="tab-panel" data-panel="ram"><h3>Memória RAM</h3><p>Mantém temporariamente o que está em uso. Mais RAM permite manter navegador, planilha, PDF e videochamada abertos com maior fluidez.</p><p class="small">É a mesa de trabalho: quanto maior, mais materiais cabem ao mesmo tempo.</p></div>
+          <div class="tab-panel" data-panel="ssd"><h3>Armazenamento</h3><p>Guarda sistema, aplicativos, fotos, vídeos e documentos. O SSD é rápido e não perde os arquivos quando o aparelho é desligado.</p><p class="small">É o arquivo permanente — mas não substitui uma cópia de segurança.</p></div>
+          <div class="tab-panel" data-panel="so"><h3>Sistema operacional</h3><p>Gerencia o hardware e oferece a base para os aplicativos. Exemplos: Windows, Linux, Android, iOS e iPadOS.</p><p class="small">É o administrador que organiza recursos e acessos.</p></div>
+          <div class="tab-panel" data-panel="rede"><h3>Conectividade</h3><p>Wi‑Fi, rede móvel, Bluetooth e cabos permitem acessar a internet e trocar dados com outros dispositivos.</p><p class="small">Conexão rápida não elimina a necessidade de segurança e atenção.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 8">
+      <header class="header"><div><div class="eyebrow">Desktop e notebook</div><h2>Mais produtividade ou mais mobilidade?</h2></div><div class="section-number">07</div></header>
+      <div class="content two-col">
+        <article class="card device accent" data-mark="▰"><span class="device-name">Desktop</span><p>Peças separadas, tela maior e posição fixa. Costuma oferecer conforto, expansão e bom desempenho pelo investimento.</p><ul class="clean-list"><li>Planilhas e documentos extensos</li><li>Sistemas administrativos</li><li>Multitarefas no escritório</li></ul><div class="best">Melhor quando o posto é fixo.</div></article>
+        <article class="card device gold-top" data-mark="▱"><span class="device-name">Notebook</span><p>Integra tela, teclado, bateria e componentes. Equilibra produtividade e deslocamento.</p><ul class="clean-list"><li>Apresentações a clientes</li><li>Trabalho em campo e no escritório</li><li>Estudo e videoconferências</li></ul><div class="best">Melhor para mobilidade com trabalho completo.</div></article>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 9">
+      <header class="header"><div><div class="eyebrow">Tablet e smartphone</div><h2>Rapidez e portabilidade na palma da mão</h2></div><div class="section-number">08</div></header>
+      <div class="content two-col">
+        <article class="card device accent" data-mark="▯"><span class="device-name">Tablet</span><p>Tela sensível ao toque maior que a do celular, leve e com boa autonomia. Pode usar caneta e teclado.</p><ul class="clean-list"><li>Apresentar portfólios</li><li>Anotar durante visitas</li><li>Ler plantas e documentos</li></ul><div class="best">Ótimo para consumo, apresentação e anotação.</div></article>
+        <article class="card device green-top" data-mark="▮"><span class="device-name">Smartphone</span><p>Comunicação, câmera, localização, internet móvel e aplicativos em um equipamento sempre disponível.</p><ul class="clean-list"><li>Fotos e vídeos de imóveis</li><li>Mapas, contatos e mensagens</li><li>Ações rápidas no Sala de Aula</li></ul><div class="best">Ótimo para agilidade — limitado em tarefas longas.</div></article>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 10">
+      <header class="header"><div><div class="eyebrow">Comparação prática</div><h2>O melhor dispositivo depende da tarefa</h2></div><div class="section-number">09</div></header>
+      <div class="content">
+        <table class="compare-table">
+          <thead><tr><th>Critério</th><th>Desktop</th><th>Notebook</th><th>Tablet</th><th>Smartphone</th></tr></thead>
+          <tbody>
+            <tr><td>Mobilidade</td><td class="stars">★</td><td class="stars">★★★★</td><td class="stars">★★★★★</td><td class="stars">★★★★★</td></tr>
+            <tr><td>Conforto em tarefas longas</td><td class="stars">★★★★★</td><td class="stars">★★★★</td><td class="stars">★★★</td><td class="stars">★★</td></tr>
+            <tr><td>Expansão/manutenção</td><td class="stars">★★★★★</td><td class="stars">★★</td><td class="stars">★</td><td class="stars">★</td></tr>
+            <tr><td>Fotos e comunicação imediata</td><td class="stars">★</td><td class="stars">★★</td><td class="stars">★★★★</td><td class="stars">★★★★★</td></tr>
+            <tr><td>Uso típico em Negócios Imobiliários</td><td>Escritório</td><td>Uso híbrido</td><td>Apresentação</td><td>Campo</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:14px">As estrelas representam adequação geral para cada finalidade, não qualidade absoluta. Configurações e acessórios mudam a experiência.</p>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 11">
+      <header class="header"><div><div class="eyebrow">Desafio da turma</div><h2>Qual dispositivo você escolheria?</h2></div><div class="section-number">10</div></header>
+      <div class="content scenario-box">
+        <div class="scenario-copy"><h3>Visita a um imóvel</h3><p>Você precisa fotografar os ambientes, consultar a localização, falar com o cliente e registrar uma observação rapidamente.</p></div>
+        <div class="scenario-choices" data-correct="Smartphone">
+          <button class="scenario-choice">🖥️ Desktop</button><button class="scenario-choice">💻 Notebook</button><button class="scenario-choice">▯ Tablet</button><button class="scenario-choice">📱 Smartphone</button>
+          <div class="scenario-feedback">Escolha uma opção e justifique oralmente antes de clicar.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 12">
+      <header class="header"><div><div class="eyebrow">Uso responsável</div><h2>Desempenho também depende de bons hábitos</h2></div><div class="section-number">11</div></header>
+      <div class="content three-col">
+        <article class="card accent"><div class="icon">↻</div><h3>Atualize</h3><p>Mantenha sistema e aplicativos atualizados para corrigir falhas e melhorar compatibilidade.</p></article>
+        <article class="card gold-top"><div class="icon">⌁</div><h3>Organize</h3><p>Use pastas, nomes claros e cópias de segurança para encontrar e proteger documentos.</p></article>
+        <article class="card green-top"><div class="icon">◉</div><h3>Cuide</h3><p>Evite líquidos, calor, quedas, cabos danificados e carregadores de procedência duvidosa.</p></article>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 13">
+      <header class="header"><div><div class="eyebrow">Google Sala de Aula</div><h2>Nossa sala continua além do encontro presencial</h2></div><div class="section-number">12</div></header>
+      <div class="content two-col">
+        <div>
+          <p class="lead">O Google Sala de Aula será o ponto de encontro para avisos, materiais, atividades, prazos e devolutivas.</p>
+          <ul class="clean-list"><li>Acesse pelo navegador em <b>classroom.google.com</b> ou pelo aplicativo.</li><li>Use a conta acadêmica indicada pelo IFPB.</li><li>Confira se está na conta correta antes de participar da turma.</li></ul>
+        </div>
+        <div class="card accent"><div class="icon">▤</div><h3>O que você fará</h3><p>Entrar na turma, acompanhar o mural, abrir materiais em Atividades, enviar arquivos, entregar tarefas e consultar feedback.</p><p class="small">A interface pode variar ligeiramente entre computador, Android e iOS.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 14">
+      <header class="header"><div><div class="eyebrow">Primeiro acesso</div><h2>Entrar na turma leva poucos passos</h2></div><div class="section-number">13</div></header>
+      <div class="content">
+        <div class="flow">
+          <div class="flow-step"><b>1. Acesse</b><span>classroom.google.com ou abra o aplicativo</span></div>
+          <div class="flow-step"><b>2. Confirme</b><span>Selecione a conta acadêmica correta</span></div>
+          <div class="flow-step"><b>3. Participe</b><span>Use o convite ou o código informado</span></div>
+          <div class="flow-step"><b>4. Explore</b><span>Abra Mural, Atividades e Pessoas</span></div>
+        </div>
+        <div class="card" style="margin-top:25px"><h3>Atenção às contas</h3><p style="margin:0">Se você usa várias contas Google no mesmo navegador ou celular, verifique a foto do perfil. A conta errada é uma causa comum de dificuldade para acessar a turma.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 15">
+      <header class="header"><div><div class="eyebrow">Tour pela plataforma</div><h2>Três áreas organizam a experiência da turma</h2></div><div class="section-number">14</div></header>
+      <div class="content classroom-shell">
+        <div class="classroom-top"><b>Google Sala de Aula</b><span>Conta acadêmica ●</span></div>
+        <div class="classroom-hero"><h3>Informática aplicada aos Negócios Imobiliários</h3><span>Professor José Raimundo</span></div>
+        <div class="classroom-body">
+          <div class="card" style="box-shadow:none"><h3>Próximas entregas</h3><p class="small">Confira os prazos com frequência.</p></div>
+          <div>
+            <div class="tabs" role="tablist"><button class="tab active" data-tab="mural2">Mural</button><button class="tab" data-tab="atividades2">Atividades</button><button class="tab" data-tab="pessoas2">Pessoas</button></div>
+            <div class="tab-panel active" data-panel="mural2"><div class="classroom-item"><b>📢 Mural</b><p class="small">Avisos, novidades e comunicação geral da turma.</p></div></div>
+            <div class="tab-panel" data-panel="atividades2"><div class="classroom-item"><b>📝 Atividades</b><p class="small">Materiais, perguntas, tarefas, instruções e datas de entrega.</p></div></div>
+            <div class="tab-panel" data-panel="pessoas2"><div class="classroom-item"><b>👥 Pessoas</b><p class="small">Professores e colegas que participam da turma.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 16">
+      <header class="header"><div><div class="eyebrow">Simulação interativa</div><h2>Vamos entregar uma atividade?</h2></div><div class="section-number">15</div></header>
+      <div class="content simulator">
+        <div class="sim-steps">
+          <div class="sim-step" id="step1"><b>Abra a atividade</b><br><span class="small">Leia o enunciado e o prazo.</span></div>
+          <div class="sim-step" id="step2"><b>Anexe o trabalho</b><br><span class="small">Confirme o arquivo correto.</span></div>
+          <div class="sim-step" id="step3"><b>Entregue</b><br><span class="small">Aguarde a confirmação.</span></div>
+        </div>
+        <div class="sim-screen">
+          <div class="eyebrow">Atividade 1</div><h3>Meu perfil digital</h3><p class="small">Escreva um parágrafo sobre como utiliza tecnologia nos estudos e no cotidiano.</p>
+          <div class="sim-file" id="simFile">Nenhum arquivo anexado</div>
+          <div class="sim-actions"><button class="sim-action" id="openTask">Abrir atividade</button><button class="sim-action" id="attachFile" disabled>+ Adicionar arquivo</button><button class="sim-action primary" id="submitTask" disabled>Entregar</button></div>
+          <div class="small" id="simStatus" style="margin-top:14px">Comece abrindo a atividade.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 17">
+      <header class="header"><div><div class="eyebrow">Antes de entregar</div><h2>Uma checagem de 30 segundos evita problemas</h2></div><div class="section-number">16</div></header>
+      <div class="content two-col">
+        <div class="card accent"><h3>Checklist do estudante</h3><ul class="clean-list"><li>Li todo o enunciado e observei o prazo?</li><li>O arquivo abre e contém meu trabalho completo?</li><li>O nome do arquivo identifica a atividade?</li><li>Cliquei em <b>Entregar</b> e vi a confirmação?</li></ul></div>
+        <div class="card gold-top"><h3>Nome de arquivo claro</h3><p class="lead" style="color:var(--petrol-dark);font-weight:800">Atividade01_JoseCarvalho.pdf</p><p>Evite nomes como <b>documento novo (7).pdf</b>. Organização transmite profissionalismo e facilita localizar versões.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 18">
+      <header class="header"><div><div class="eyebrow">Cidadania digital</div><h2>Proteja suas contas, seus dados e os dados dos clientes</h2></div><div class="section-number">17</div></header>
+      <div class="content security-grid">
+        <div class="security-tip"><span>🔐</span><span><b>Senha exclusiva e forte</b>Não reutilize a mesma senha em serviços importantes.</span></div>
+        <div class="security-tip"><span>✓</span><span><b>Verificação em duas etapas</b>Adicione uma segunda proteção à conta.</span></div>
+        <div class="security-tip"><span>⚠</span><span><b>Desconfie da urgência</b>Confira remetente, endereço e contexto antes de clicar.</span></div>
+        <div class="security-tip"><span>◫</span><span><b>Cuidado com dados pessoais</b>Compartilhe documentos e informações apenas com quem precisa.</span></div>
+        <div class="security-tip"><span>☁</span><span><b>Faça cópias de segurança</b>Mantenha arquivos importantes em local confiável.</span></div>
+        <div class="security-tip"><span>⌧</span><span><b>Saia de equipamentos compartilhados</b>Encerre a sessão e não salve sua senha em computadores públicos.</span></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 19">
+      <header class="header"><div><div class="eyebrow">Atividade em sala</div><h2>Mapa de competências digitais da turma</h2></div><div class="section-number">18</div></header>
+      <div class="content two-col">
+        <div><p class="lead">Em grupos de 3 ou 4, conversem e escolham uma competência que alguém do grupo pode ensinar e outra que o grupo quer desenvolver.</p><ul class="clean-list"><li>Organização de arquivos</li><li>Documentos e planilhas</li><li>Fotos e vídeos</li><li>Segurança digital</li><li>Plataformas de estudo</li></ul></div>
+        <div class="card accent"><h3>Compartilhamento rápido</h3><p><b>1.</b> Registrem as duas escolhas.</p><p><b>2.</b> Escolham um porta-voz.</p><p><b>3.</b> Apresentem em até 30 segundos.</p><div class="warmup-result">Objetivo: reconhecer que todos têm algo a aprender e algo a ensinar.</div></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 20">
+      <header class="header"><div><div class="eyebrow">Quiz interativo</div><h2>Hora de testar o que aprendemos</h2></div><div class="section-number">19</div></header>
+      <div class="content quiz-wrap" id="quizContainer">
+        <div class="quiz-meta"><span id="questionNumber">Questão 1 de 10</span><span id="scoreLabel">0 ponto</span></div>
+        <div class="card">
+          <p class="quiz-question" id="quizQuestion"></p>
+          <div class="options" id="quizOptions"></div>
+          <div class="quiz-feedback" id="quizFeedback">Escolha uma alternativa. A correção será imediata.</div>
+          <button class="primary-btn quiz-next" id="quizNext">Próxima questão →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Slide 21">
+      <header class="header"><div><div class="eyebrow">Resultado</div><h2>Seu desempenho no desafio</h2></div><div class="section-number">20</div></header>
+      <div class="content result-screen">
+        <div class="medal" id="medal">🏅</div>
+        <p class="result-score"><span id="finalScore">0</span>/10</p>
+        <h3 id="resultTitle">Conclua o quiz para ver seu resultado</h3>
+        <p class="lead" id="resultMessage" style="margin-left:auto;margin-right:auto">Cada resposta é uma oportunidade de consolidar o aprendizado.</p>
+        <button class="primary-btn" id="restartQuiz" style="text-align:center">Refazer quiz</button>
+      </div>
+    </section>
+
+    <section class="slide closing" aria-label="Slide 22">
+      <header class="header"><div><div class="eyebrow">Síntese e próximos passos</div><h2>Tecnologia com propósito gera autonomia</h2></div><div class="section-number">21</div></header>
+      <div class="content">
+        <div class="takeaways">
+          <div class="takeaway"><div class="big">01</div><h3>Compreenda</h3><p>Hardware e software cooperam para transformar dados em resultados.</p></div>
+          <div class="takeaway"><div class="big">02</div><h3>Escolha</h3><p>O dispositivo adequado depende da tarefa, do local e do nível de produtividade exigido.</p></div>
+          <div class="takeaway"><div class="big">03</div><h3>Participe</h3><p>Acompanhe o Google Sala de Aula, organize seus arquivos e pratique segurança digital.</p></div>
+        </div>
+        <div class="card accent" style="margin-top:30px;text-align:center"><h3>Primeira missão</h3><p style="margin:0">Acessar a turma no Google Sala de Aula, localizar a atividade de ambientação e conferir o prazo.</p></div>
+      </div>
+    </section>
+
+    <nav class="controls" aria-label="Controles da apresentação">
+      <button class="nav-btn" id="prevBtn" title="Slide anterior (←)" aria-label="Slide anterior">←</button>
+      <span class="slide-counter" id="slideCounter">1 / 22</span>
+      <button class="nav-btn" id="nextBtn" title="Próximo slide (→)" aria-label="Próximo slide">→</button>
+      <button class="nav-btn" id="fullscreenBtn" title="Tela cheia (F)" aria-label="Ativar tela cheia">⛶</button>
+    </nav>
+    <div class="help">← → navegar • F tela cheia • Home/End</div>
+  </main>
+
+  <!--
+    Fontes consultadas (acesso em 12 ago. 2026):
+    Google Sala de Aula — Primeiros passos para alunos: https://support.google.com/edu/classroom/answer/9582544?hl=pt-BR
+    Google Sala de Aula — Como fazer login: https://support.google.com/edu/classroom/answer/6072460?hl=pt-BR
+    Google Sala de Aula — Entregar uma atividade: https://support.google.com/edu/classroom/answer/6020285?hl=pt
+    Google Sala de Aula — Perguntas frequentes: https://support.google.com/edu/classroom/answer/6025224?hl=pt-BR
+  -->
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const slideCounter = document.getElementById('slideCounter');
+    let current = 0;
+
+    function showSlide(index) {
+      index = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+        slide.classList.toggle('leaving', i < index);
+        slide.setAttribute('aria-hidden', i === index ? 'false' : 'true');
+        if (i === index) slide.scrollTop = 0;
+      });
+      current = index;
+      slideCounter.textContent = `${current + 1} / ${slides.length}`;
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+      history.replaceState(null, '', `#slide-${current + 1}`);
+    }
+    prevBtn.addEventListener('click', () => showSlide(current - 1));
+    nextBtn.addEventListener('click', () => showSlide(current + 1));
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    document.addEventListener('keydown', (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); showSlide(current + 1); }
+      if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); showSlide(current - 1); }
+      if (e.key === 'Home') showSlide(0);
+      if (e.key === 'End') showSlide(slides.length - 1);
+      if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    });
+    const hashIndex = Number(location.hash.replace('#slide-', '')) - 1;
+    showSlide(Number.isInteger(hashIndex) && hashIndex >= 0 ? hashIndex : 0);
+
+    // Diagnóstico inicial
+    const warmupButtons = [...document.querySelectorAll('#warmup button')];
+    const warmupResult = document.getElementById('warmupResult');
+    warmupButtons.forEach(btn => btn.addEventListener('click', () => {
+      btn.classList.toggle('selected');
+      const count = warmupButtons.filter(b => b.classList.contains('selected')).length;
+      const messages = [
+        'Selecione suas experiências. A turma provavelmente já traz muito conhecimento para compartilhar!',
+        'Você já usa tecnologia em uma atividade importante.',
+        'Boa base! Essas experiências serão conectadas aos conteúdos da disciplina.',
+        'Seu cotidiano já é bastante digital — vamos transformar uso em competência.',
+        'Você transita por diferentes usos da tecnologia.',
+        'Excelente repertório! Compartilhe estratégias com a turma.',
+        'Perfil digital muito ativo! O próximo passo é usar tudo com organização, criticidade e segurança.'
+      ];
+      warmupResult.textContent = messages[count];
+    }));
+
+    // Abas, isoladas por grupo de conteúdo
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      const scope = tab.closest('.content') || tab.parentElement.parentElement;
+      const tabs = scope.querySelectorAll('.tab');
+      const panels = scope.querySelectorAll('.tab-panel');
+      tabs.forEach(t => t.classList.toggle('active', t === tab));
+      panels.forEach(p => p.classList.toggle('active', p.dataset.panel === target));
+    }));
+
+    // Desafio de dispositivo
+    document.querySelectorAll('.scenario-choices').forEach(group => {
+      const correct = group.dataset.correct;
+      const feedback = group.querySelector('.scenario-feedback');
+      group.querySelectorAll('.scenario-choice').forEach(btn => btn.addEventListener('click', () => {
+        group.querySelectorAll('.scenario-choice').forEach(b => b.classList.remove('correct', 'wrong'));
+        const chosen = btn.textContent.trim();
+        if (chosen.includes(correct)) {
+          btn.classList.add('correct');
+          feedback.innerHTML = '<b>Boa escolha!</b> O smartphone reúne câmera, mapas, rede móvel e comunicação imediata. Um tablet também poderia ajudar, mas costuma ser menos prático para chamadas e uso com uma mão.';
+        } else {
+          btn.classList.add('wrong');
+          feedback.innerHTML = '<b>É possível usar, mas há uma opção mais prática.</b> Compare mobilidade, câmera, localização e comunicação durante uma visita.';
+        }
+      }));
+    });
+
+    // Simulação de entrega
+    const openTask = document.getElementById('openTask');
+    const attachFile = document.getElementById('attachFile');
+    const submitTask = document.getElementById('submitTask');
+    const simFile = document.getElementById('simFile');
+    const simStatus = document.getElementById('simStatus');
+    openTask.addEventListener('click', () => {
+      document.getElementById('step1').classList.add('done');
+      attachFile.disabled = false; openTask.disabled = true;
+      simStatus.textContent = 'Enunciado conferido. Agora anexe o trabalho correto.';
+    });
+    attachFile.addEventListener('click', () => {
+      document.getElementById('step2').classList.add('done');
+      simFile.textContent = '📄 Atividade01_MeuNome.pdf — anexado';
+      simFile.classList.add('attached');
+      submitTask.disabled = false; attachFile.disabled = true;
+      simStatus.textContent = 'Arquivo anexado. Confira o nome e clique em Entregar.';
+    });
+    submitTask.addEventListener('click', () => {
+      document.getElementById('step3').classList.add('done');
+      submitTask.disabled = true;
+      submitTask.textContent = '✓ Entregue';
+      simStatus.innerHTML = '<b style="color:var(--correct)">Atividade entregue com sucesso!</b> Na plataforma real, confirme sempre o status.';
+    });
+
+    // Quiz
+    const quiz = [
+      { q: 'Qual componente mantém temporariamente os programas e arquivos que estão em uso?', a: ['SSD', 'Memória RAM', 'Tela', 'Bateria'], c: 1, e: 'A memória RAM funciona como uma área de trabalho temporária e rápida.' },
+      { q: 'Qual opção representa software?', a: ['Teclado', 'Processador', 'Sistema operacional', 'Câmera'], c: 2, e: 'O sistema operacional é software: ele gerencia o hardware e oferece a base para os aplicativos.' },
+      { q: 'Para produzir uma planilha extensa em um posto fixo, qual dispositivo tende a oferecer mais conforto?', a: ['Desktop', 'Smartphone', 'Relógio inteligente', 'Roteador'], c: 0, e: 'O desktop favorece tela grande, ergonomia, expansão e tarefas longas em local fixo.' },
+      { q: 'Em uma visita a um imóvel, qual dispositivo reúne melhor câmera, mapas e comunicação imediata?', a: ['Desktop', 'Smartphone', 'Impressora', 'Projetor'], c: 1, e: 'O smartphone concentra câmera, GPS, internet móvel e aplicativos de comunicação.' },
+      { q: 'O que acontece primeiro no fluxo entrada → processamento → armazenamento → saída?', a: ['Os dados são exibidos', 'Os dados são recebidos', 'Os arquivos são apagados', 'A bateria é carregada'], c: 1, e: 'Na entrada, o dispositivo recebe dados pelo teclado, toque, câmera, microfone ou sensores.' },
+      { q: 'No Google Sala de Aula, onde ficam materiais, perguntas e tarefas?', a: ['Pessoas', 'Atividades', 'Foto do perfil', 'Lixeira'], c: 1, e: 'A área Atividades organiza materiais, perguntas, tarefas, instruções e prazos.' },
+      { q: 'Antes de entrar em uma turma do Google Sala de Aula, qual cuidado evita muitos problemas?', a: ['Desligar o Wi-Fi', 'Excluir o navegador', 'Confirmar a conta correta', 'Renomear o celular'], c: 2, e: 'Quem usa várias contas Google deve conferir a foto do perfil e selecionar a conta acadêmica correta.' },
+      { q: 'Qual nome de arquivo é mais claro e profissional?', a: ['novo (8).pdf', 'arquivo.pdf', 'Atividade01_AnaSilva.pdf', 'semnome-final-agora.pdf'], c: 2, e: 'Um padrão com atividade e nome do estudante facilita identificação e organização.' },
+      { q: 'Depois de anexar o arquivo à atividade, o que deve ser feito?', a: ['Fechar imediatamente', 'Clicar em Entregar e confirmar o status', 'Apagar o arquivo original', 'Trocar de conta'], c: 1, e: 'Anexar não é o mesmo que entregar. É necessário clicar em Entregar e observar a confirmação.' },
+      { q: 'Qual prática aumenta a segurança de uma conta?', a: ['Reutilizar a mesma senha', 'Clicar em toda mensagem urgente', 'Ativar verificação em duas etapas', 'Compartilhar a senha com colegas'], c: 2, e: 'A verificação em duas etapas adiciona uma segunda barreira além da senha.' }
+    ];
+    let qi = 0, score = 0, answered = false;
+    const quizQuestion = document.getElementById('quizQuestion');
+    const quizOptions = document.getElementById('quizOptions');
+    const quizFeedback = document.getElementById('quizFeedback');
+    const quizNext = document.getElementById('quizNext');
+    const questionNumber = document.getElementById('questionNumber');
+    const scoreLabel = document.getElementById('scoreLabel');
+
+    function renderQuestion() {
+      answered = false;
+      const item = quiz[qi];
+      questionNumber.textContent = `Questão ${qi + 1} de ${quiz.length}`;
+      scoreLabel.textContent = `${score} ${score === 1 ? 'ponto' : 'pontos'}`;
+      quizQuestion.textContent = item.q;
+      quizOptions.innerHTML = '';
+      item.a.forEach((answer, idx) => {
+        const button = document.createElement('button');
+        button.className = 'option'; button.type = 'button';
+        button.innerHTML = `<span class="letter">${String.fromCharCode(65 + idx)}</span><span>${answer}</span>`;
+        button.addEventListener('click', () => answerQuestion(idx, button));
+        quizOptions.appendChild(button);
+      });
+      quizFeedback.textContent = 'Escolha uma alternativa. A correção será imediata.';
+      quizNext.classList.remove('visible');
+      quizNext.textContent = qi === quiz.length - 1 ? 'Ver resultado →' : 'Próxima questão →';
+    }
+    function answerQuestion(choice, button) {
+      if (answered) return;
+      answered = true;
+      const item = quiz[qi];
+      const buttons = [...quizOptions.querySelectorAll('.option')];
+      buttons.forEach((b, idx) => { b.disabled = true; if (idx === item.c) b.classList.add('correct'); });
+      if (choice === item.c) { score++; quizFeedback.innerHTML = `<b style="color:var(--correct)">Correto!</b> ${item.e}`; }
+      else { button.classList.add('wrong'); quizFeedback.innerHTML = `<b style="color:var(--wrong)">Ainda não.</b> ${item.e}`; }
+      scoreLabel.textContent = `${score} ${score === 1 ? 'ponto' : 'pontos'}`;
+      quizNext.classList.add('visible');
+    }
+    quizNext.addEventListener('click', () => {
+      if (qi < quiz.length - 1) { qi++; renderQuestion(); }
+      else { updateResult(); showSlide(20); }
+    });
+    function updateResult() {
+      document.getElementById('finalScore').textContent = score;
+      const medal = document.getElementById('medal');
+      const title = document.getElementById('resultTitle');
+      const message = document.getElementById('resultMessage');
+      if (score >= 9) { medal.textContent = '🥇'; title.textContent = 'Excelente domínio!'; message.textContent = 'Você está preparado para usar os dispositivos e o ambiente digital com autonomia.'; }
+      else if (score >= 7) { medal.textContent = '🥈'; title.textContent = 'Muito bom!'; message.textContent = 'Sua base está sólida. Revise os poucos pontos que ainda geraram dúvida.'; }
+      else if (score >= 5) { medal.textContent = '🥉'; title.textContent = 'Bom começo!'; message.textContent = 'Você compreendeu conceitos importantes. Uma revisão rápida vai consolidar o aprendizado.'; }
+      else { medal.textContent = '🌱'; title.textContent = 'Todo aprendizado começa por um passo'; message.textContent = 'Reveja os exemplos e tente novamente. Persistência transforma dúvida em conhecimento.'; }
+    }
+    document.getElementById('restartQuiz').addEventListener('click', () => { qi = 0; score = 0; renderQuestion(); showSlide(19); });
+    renderQuestion();
+  </script>
+</body>
+</html>
