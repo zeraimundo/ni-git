@@ -31,21 +31,21 @@ window.AULAS = [
     slides: 25,
     duracao: "Aula interativa",
     status: "disponivel",
-    destaque: true,
+    destaque: false,
     arquivo: "./slides/02-historia-informatica-hardware-software.html"
   },
   {
     numero: 3,
-    titulo: "Sistema Operacional e Organização de Arquivos",
-    resumo: "Ambiente de trabalho, janelas, pastas, arquivos e operações essenciais para organizar a rotina acadêmica e profissional.",
-    topicos: ["Sistema operacional", "Arquivos", "Pastas"],
+    titulo: "Sistemas Operacionais",
+    resumo: "Windows, Linux e outros sistemas, com atividades sobre área de trabalho, arquivos, aplicativos, atualizações, segurança e escolhas para a rotina imobiliária.",
+    topicos: ["Sistemas operacionais", "Arquivos", "Segurança"],
     icone: "▤",
     estilo: "system",
-    data: "Próxima aula",
-    slides: 0,
-    duracao: "Em preparação",
-    status: "em-breve",
-    destaque: false,
-    arquivo: ""
+    data: "28 ago. 2026",
+    slides: 26,
+    duracao: "Aula interativa",
+    status: "disponivel",
+    destaque: true,
+    arquivo: "./slides/03-sistemas-operacionais.html"
   }
 ];
