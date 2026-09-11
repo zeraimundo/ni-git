@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aula interativa de Microsoft Word e Google Docs aplicada ao curso superior de Negócios Imobiliários do IFPB.">
+  <title>Word e Google Docs | Negócios Imobiliários</title>
+  <style>
+    :root{
+      --navy:#102a38;--petrol:#176b70;--petrol-dark:#0f5055;--green:#315f4f;
+      --green-soft:#dcebe5;--gold:#c59742;--cream:#f4f1e9;--paper:#fcfbf7;
+      --ink:#17252c;--muted:#5e6b70;--line:#ccd7d5;--correct:#257653;--wrong:#a84040;
+      --word:#185abd;--docs:#4285f4;--shadow:0 22px 70px rgba(15,42,56,.18);
+      --radius:22px;--topbar:70px;--controls:74px
+    }
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden}
+    body{font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink);background:
+      radial-gradient(circle at 12% 18%,rgba(23,107,112,.17),transparent 29%),
+      radial-gradient(circle at 88% 83%,rgba(197,151,66,.14),transparent 25%),
+      linear-gradient(135deg,#e7ece9,#d7e1df)}
+    button{font:inherit;-webkit-tap-highlight-color:transparent}a{color:var(--petrol-dark)}
+    .deck{position:relative;width:100%;height:100%}
+    .topbar{position:fixed;z-index:80;top:0;left:0;right:0;height:var(--topbar);display:flex;align-items:center;gap:18px;padding:0 clamp(20px,3.2vw,52px);color:#fff;background:rgba(16,42,56,.94);border-bottom:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);box-shadow:0 7px 28px rgba(15,42,56,.13)}
+    .brand{display:flex;align-items:center;gap:11px;min-width:245px;font-weight:850;letter-spacing:.02em}
+    .brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,var(--petrol),var(--gold));box-shadow:0 5px 18px rgba(0,0,0,.2)}
+    .brand small{display:block;color:#b9ded7;font-size:.67rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+    .top-progress{flex:1;height:6px;background:rgba(255,255,255,.16);border-radius:999px;overflow:hidden}
+    .top-progress span{display:block;height:100%;width:2.5%;background:linear-gradient(90deg,#47b8ba,var(--gold));transition:width .35s}
+    .top-actions{display:flex;gap:7px}
+    .top-btn{cursor:pointer;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:11px;padding:9px 12px;font-weight:750;font-size:.82rem;transition:.2s}
+    .top-btn:hover{background:var(--petrol);transform:translateY(-1px)}
+    .slide{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;gap:clamp(13px,2vh,24px);padding:calc(var(--topbar) + clamp(22px,3vh,38px)) clamp(28px,6vw,92px) calc(var(--controls) + clamp(20px,3vh,38px));opacity:0;visibility:hidden;transform:translateX(34px) scale(.99);transition:opacity .3s,transform .35s,visibility .35s;overflow:auto;scrollbar-width:thin}
+    .slide.active{opacity:1;visibility:visible;transform:none;z-index:5}
+    .slide::before{content:"";position:absolute;inset:calc(var(--topbar) + 12px) 22px calc(var(--controls) + 7px);border:1px solid rgba(23,107,112,.13);border-radius:28px;pointer-events:none}
+    .slide>*{position:relative;z-index:1}
+    .eyebrow{color:var(--petrol);font-weight:850;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(.67rem,.9vw,.88rem)}
+    h1,h2,h3,p{margin-top:0}h1,h2{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.035em}
+    h1{font-size:clamp(2.75rem,5.7vw,5.7rem);line-height:.98;margin-bottom:21px}
+    h2{color:var(--navy);font-size:clamp(1.9rem,3.55vw,3.7rem);line-height:1.05;margin-bottom:0}
+    h3{color:var(--navy);font-size:clamp(1.02rem,1.55vw,1.4rem);line-height:1.2;margin-bottom:8px}
+    p,li{font-size:clamp(.9rem,1.14vw,1.1rem);line-height:1.42}
+    .lead{color:var(--muted);font-size:clamp(1.03rem,1.55vw,1.36rem);max-width:920px}
+    .small{font-size:clamp(.72rem,.9vw,.9rem);color:var(--muted)}
+    .gold{color:var(--gold)}.word{color:var(--word)}.docs{color:var(--docs)}
+    .header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;border-bottom:2px solid var(--line);padding-bottom:14px}
+    .section-number{font-family:Georgia,serif;color:rgba(23,107,112,.23);font-size:clamp(2.3rem,5vw,4.8rem);line-height:.75}
+    .content{align-self:center;width:100%}
+    .two-col{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,4vw,62px);align-items:center}
+    .two-col.equal{grid-template-columns:1fr 1fr}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,24px)}
+    .four-col{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,1.4vw,19px)}
+    .stack{display:grid;gap:14px}
+    .card{background:rgba(252,251,247,.93);border:1px solid var(--line);border-radius:var(--radius);padding:clamp(16px,2vw,27px);box-shadow:0 13px 36px rgba(15,42,56,.09)}
+    .card.accent{border-top:5px solid var(--petrol)}.card.word-top{border-top:5px solid var(--word)}.card.docs-top{border-top:5px solid var(--docs)}.card.gold-top{border-top:5px solid var(--gold)}
+    .icon{width:54px;height:54px;display:grid;place-items:center;border-radius:15px;background:var(--green-soft);color:var(--petrol-dark);font-size:25px;font-weight:900;margin-bottom:13px}
+    .clean-list{list-style:none;padding:0;margin:12px 0 0}.clean-list li{position:relative;padding-left:25px;margin:7px 0}.clean-list li::before{content:"✓";position:absolute;left:0;color:var(--correct);font-weight:900}
+    .pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:rgba(255,255,255,.68);font-size:.82rem;font-weight:800;color:var(--petrol-dark)}
+    .cover{grid-template-rows:1fr;align-items:center;color:#fff;background:linear-gradient(115deg,rgba(12,39,52,.985),rgba(15,80,85,.94))}
+    .cover h1{color:#fff;max-width:880px}.cover .eyebrow{color:#b9ded7}.cover .lead{color:#dbe9e7;max-width:770px}
+    .cover-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:38px;align-items:center}
+    .title-meta{display:flex;gap:17px;flex-wrap:wrap;margin-top:28px;color:#dbe9e7;font-weight:650}
+    .cover-images{display:grid;gap:12px}
+    .cover-images img{display:block;width:100%;max-height:220px;object-fit:contain;background:#fff;border-radius:18px;border:4px solid rgba(255,255,255,.85);box-shadow:var(--shadow)}
+    figure{margin:0}.shot{border-radius:22px;overflow:hidden;box-shadow:var(--shadow);background:#eef1ef;border:1px solid rgba(16,42,56,.12)}
+    .shot img{display:block;width:100%;height:auto;max-height:min(54vh,520px);object-fit:contain;background:#fff}
+    .shot.tall img{max-height:min(58vh,560px)}
+    .shot figcaption{padding:9px 13px;background:#fff;color:var(--muted);font-size:.72rem;line-height:1.35;border-top:1px solid var(--line)}
+    .image-strip{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .callout{padding:14px 17px;border-left:5px solid var(--gold);background:rgba(252,251,247,.86);border-radius:0 14px 14px 0;color:var(--muted)}
+    .hierarchy{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .hierarchy .card{text-align:center;padding:18px 13px}.hierarchy strong{display:block;color:var(--petrol);font-size:1.05rem;margin-bottom:6px}
+    .interface-list{display:grid;gap:9px;counter-reset:item}.interface-item{display:grid;grid-template-columns:36px 1fr;gap:11px;align-items:start;padding:11px 13px;background:rgba(252,251,247,.9);border:1px solid var(--line);border-radius:13px}
+    .interface-item::before{counter-increment:item;content:counter(item);width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:var(--navy);color:#fff;font-weight:900}
+    .interface-item b{display:block;color:var(--navy);margin-bottom:2px}.interface-item span{color:var(--muted);font-size:.84rem;line-height:1.35}
+    .command-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+    .command{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;text-align:center;min-height:105px}
+    .command b{display:block;color:var(--navy);margin:7px 0 5px}.command span{font-size:.76rem;color:var(--muted)}
+    .compare{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.92);box-shadow:0 13px 36px rgba(15,42,56,.08)}
+    .compare th,.compare td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font-size:clamp(.78rem,1vw,.96rem);vertical-align:top}
+    .compare th{background:var(--navy);color:#fff}.compare tr:last-child td{border-bottom:0}.compare td:first-child{font-weight:850;color:var(--petrol-dark)}
+    .shortcut-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.shortcut{text-align:center}
+    .keys{display:flex;justify-content:center;align-items:center;gap:5px;margin-bottom:10px}.kbd{display:inline-grid;place-items:center;min-width:34px;height:31px;padding:0 8px;border:1px solid #aab8b5;border-bottom-width:3px;border-radius:7px;background:#fff;font-weight:850;color:var(--navy)}
+    .scenario-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.scenario-btn{cursor:pointer;text-align:left;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.88);padding:15px;color:var(--ink);transition:.18s}.scenario-btn:hover{transform:translateY(-2px);border-color:var(--petrol)}.scenario-btn.selected{background:var(--green-soft);border-color:var(--petrol)}.scenario-result{margin-top:14px;min-height:66px}
+    .checklist{display:grid;gap:9px}.check-item{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.88);cursor:pointer}.check-item input{width:20px;height:20px;accent-color:var(--petrol)}.check-item.done{opacity:.6;text-decoration:line-through}
+    .quiz-wrap{max-width:1080px;margin:auto;width:100%}.quiz-meta{display:flex;justify-content:space-between;color:var(--muted);font-weight:800;margin-bottom:12px}.quiz-question{font-family:Georgia,serif;color:var(--navy);font-size:clamp(1.35rem,2.4vw,2.2rem);line-height:1.16;margin:0 0 18px}.options{display:grid;grid-template-columns:1fr 1fr;gap:11px}.option{cursor:pointer;min-height:61px;display:flex;align-items:center;gap:11px;text-align:left;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.88);padding:13px 16px;color:var(--ink)}.option:hover{border-color:var(--petrol);transform:translateY(-1px)}.option .letter{flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:var(--green-soft);color:var(--petrol-dark);font-weight:900}.option:disabled{cursor:default;transform:none}.option.correct{background:#e3f3ea;border-color:var(--correct)}.option.wrong{background:#f7e6e6;border-color:var(--wrong)}.quiz-feedback{min-height:58px;padding:13px 17px;margin-top:14px;border-radius:14px;background:rgba(255,255,255,.72);color:var(--muted)}.quiz-next{display:none;margin:13px 0 0 auto;min-width:175px;cursor:pointer;border:0;border-radius:13px;background:var(--petrol);color:#fff;padding:12px 16px;font-weight:850}.quiz-next.visible{display:block}
+    .result-screen{text-align:center;max-width:900px;margin:auto}.medal{width:135px;height:135px;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px;font-size:64px;background:linear-gradient(145deg,#f2d489,var(--gold));box-shadow:0 0 0 15px rgba(197,151,66,.15),var(--shadow)}.result-score{font-family:Georgia,serif;font-size:clamp(2.5rem,5.6vw,5.2rem);color:var(--navy);margin:0}
+    .closing{background:linear-gradient(135deg,#f6f3eb,#dfeae5)}.takeaways{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.takeaway{border-top:2px solid var(--line);padding-top:15px}.takeaway .big{color:var(--petrol);font-family:Georgia,serif;font-size:clamp(2rem,4vw,4.1rem);line-height:1}
+    .controls{position:fixed;z-index:75;left:50%;bottom:15px;transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:7px;background:rgba(16,42,56,.93);border:1px solid rgba(255,255,255,.22);border-radius:18px;box-shadow:0 10px 35px rgba(0,0,0,.22);backdrop-filter:blur(12px)}
+    .nav-btn{width:46px;height:42px;cursor:pointer;border:0;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font-size:22px}.nav-btn:hover{background:var(--petrol)}.nav-btn:disabled{opacity:.35}.slide-counter{min-width:88px;text-align:center;color:#fff;font-weight:850;font-size:.88rem}
+    .modal{position:fixed;z-index:120;inset:0;display:none;place-items:center;padding:25px;background:rgba(7,25,34,.72);backdrop-filter:blur(8px)}.modal.open{display:grid}.modal-card{position:relative;width:min(1120px,96vw);max-height:88vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:26px;padding:clamp(24px,4vw,46px);box-shadow:var(--shadow)}.modal-close{position:sticky;float:right;top:0;cursor:pointer;border:0;background:var(--navy);color:#fff;width:42px;height:42px;border-radius:12px;font-size:20px}.overview-grid{clear:both;display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-top:22px}.overview-item{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px;text-align:left;color:var(--ink)}.overview-item:hover{border-color:var(--petrol);background:var(--green-soft)}.overview-item b{display:block;color:var(--petrol);margin-bottom:5px}.source-list{clear:both;display:grid;gap:10px;margin-top:20px}.source-item{padding:14px;border-left:4px solid var(--gold);background:#fff;border-radius:0 13px 13px 0}.source-item b{display:block;color:var(--navy)}
+    @media(max-width:1050px){.top-btn span{display:none}.brand{min-width:195px}.two-col,.cover-grid{grid-template-columns:1fr}.three-col,.takeaways{grid-template-columns:1fr 1fr}.four-col,.shortcut-grid,.command-grid{grid-template-columns:1fr 1fr}.overview-grid{grid-template-columns:repeat(3,1fr)}.cover-images{display:none}.hierarchy{grid-template-columns:1fr 1fr}}
+    @media(max-width:680px){:root{--topbar:62px}.topbar{padding:0 12px;gap:8px}.brand{min-width:0;flex:1}.brand>span:last-child{font-size:.78rem}.brand small{font-size:.57rem}.top-progress{display:none}.top-btn{padding:8px 9px}.slide{padding:calc(var(--topbar) + 18px) 22px calc(var(--controls) + 18px)}.slide::before{inset:calc(var(--topbar) + 7px) 8px calc(var(--controls) + 4px)}.two-col,.three-col,.four-col,.image-strip,.command-grid,.shortcut-grid,.scenario-grid,.options,.takeaways,.hierarchy{grid-template-columns:1fr}.overview-grid{grid-template-columns:1fr 1fr}.section-number{display:none}.controls{bottom:8px}.cover h1{font-size:2.65rem}.modal{padding:10px}}
+    @media(max-height:720px) and (min-width:681px){:root{--topbar:60px;--controls:60px}.topbar{height:60px}.slide{padding-top:76px;padding-bottom:76px;gap:10px}h2{font-size:clamp(1.75rem,3vw,3rem)}p,li{font-size:clamp(.8rem,1.02vw,.98rem);line-height:1.32}.lead{font-size:clamp(.94rem,1.25vw,1.15rem)}.card{padding:14px 18px}.shot img{max-height:46vh}.controls{bottom:8px}.nav-btn{height:38px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+    @media print{html,body{overflow:visible;background:#fff}.topbar,.controls,.modal{display:none!important}.deck{height:auto}.slide{position:relative;min-height:100vh;opacity:1;visibility:visible;transform:none;page-break-after:always;padding:45px}.slide::before{inset:20px}}
+  </style>
+</head>
+<body>
+<main class="deck" id="deck">
+  <header class="topbar" aria-label="Barra da apresentação">
+    <div class="brand"><span class="brand-mark">⌂</span><span>Negócios Imobiliários<small>Informática básica • IFPB</small></span></div>
+    <div class="top-progress" aria-hidden="true"><span id="progressBar"></span></div>
+    <div class="top-actions">
+      <button class="top-btn" data-modal="overviewModal" title="Visão geral">▦ <span>Visão geral</span></button>
+      <button class="top-btn" data-modal="sourcesModal" title="Fontes e créditos">◉ <span>Fontes</span></button>
+      <button class="top-btn" data-modal="helpModal" title="Ajuda">? <span>Ajuda</span></button>
+      <button class="top-btn" id="fullscreenBtn" title="Tela cheia">⛶ <span>Tela cheia</span></button>
+    </div>
+  </header>
+
+  <section class="slide cover active" data-title="Capa" aria-label="Slide 1">
+    <div class="content">
+      <div>
+        <div class="eyebrow">Aula 04 • Documentos profissionais</div>
+        <h1>Microsoft Word<br><span class="gold">e Google Docs</span></h1>
+        <p class="lead">Interfaces, comandos e produção de documentos para a rotina imobiliária</p>
+        <div class="title-meta"><span>Professor José Raimundo</span><span>Curso Superior de Negócios Imobiliários</span><span>IFPB</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="O que vamos aprender" aria-label="Slide 2">
+    <div class="header"><div><div class="eyebrow">Rota da aula</div><h2>Da interface ao documento pronto</h2></div><div class="section-number">02</div></div>
+    <div class="content four-col">
+      <div class="card accent"><div class="icon">1</div><h3>Reconhecer</h3><p>Localizar as áreas de trabalho do Word e do Google Docs.</p></div>
+      <div class="card word-top"><div class="icon">W</div><h3>Compreender</h3><p>Diferenciar guias, grupos de comandos e comandos no Word.</p></div>
+      <div class="card docs-top"><div class="icon">D</div><h3>Operar</h3><p>Usar menus, barra de ferramentas e colaboração no Google Docs.</p></div>
+      <div class="card gold-top"><div class="icon">⌂</div><h3>Aplicar</h3><p>Produzir documentos claros e seguros para o setor imobiliário.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Documentos na rotina imobiliária" aria-label="Slide 3">
+    <div class="header"><div><div class="eyebrow">Por que aprender</div><h2>O texto também representa o imóvel e a empresa</h2></div><div class="section-number">03</div></div>
+    <div class="content two-col">
+      <div class="stack">
+        <div class="card"><h3>Atendimento e comercialização</h3><p>Propostas, cartas, apresentações do imóvel e respostas formais ao cliente.</p></div>
+        <div class="card"><h3>Registro do trabalho</h3><p>Relatórios de visita, atas, checklists, pareceres e fichas cadastrais.</p></div>
+        <div class="card"><h3>Documentação</h3><p>Minutas, contratos, termos, declarações e documentos para assinatura.</p></div>
+      </div>
+      <div class="card accent"><h3>Qualidade profissional</h3><ul class="clean-list"><li>Informações fáceis de localizar</li><li>Padronização de títulos e seções</li><li>Revisão antes do envio</li><li>Permissão adequada para cada pessoa</li><li>PDF para preservar a apresentação final</li></ul></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word e Google Docs" aria-label="Slide 4">
+    <div class="header"><div><div class="eyebrow">Visão geral</div><h2>Duas ferramentas, a mesma finalidade principal</h2></div><div class="section-number">04</div></div>
+    <div class="content">
+      <table class="compare">
+        <thead><tr><th>Aspecto</th><th>Microsoft Word</th><th>Google Docs</th></tr></thead>
+        <tbody>
+          <tr><td>Organização da interface</td><td>Guias, Faixa de Opções, grupos e comandos</td><td>Menus, barra de ferramentas e painéis laterais</td></tr>
+          <tr><td>Salvamento</td><td>Arquivo local ou nuvem pelo OneDrive e SharePoint</td><td>Salvamento automático no Google Drive</td></tr>
+          <tr><td>Ponto forte</td><td>Diagramação detalhada e recursos avançados de documentos longos</td><td>Colaboração simples e edição direta no navegador</td></tr>
+          <tr><td>Formato de trabalho</td><td>DOCX, com exportação para PDF e outros formatos</td><td>Documento Google, com download em DOCX, PDF e outros formatos</td></tr>
+        </tbody>
+      </table>
+      <p class="callout" style="margin-top:16px">A escolha depende do fluxo da equipe, da necessidade de colaboração e do nível de controle sobre o layout.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-title="A hierarquia dos comandos" aria-label="Slide 5">
+    <div class="header"><div><div class="eyebrow">Ideia central</div><h2>Do assunto geral à ação específica</h2></div><div class="section-number">05</div></div>
+    <div class="content">
+      <div class="hierarchy">
+        <div class="card"><strong>Área do programa</strong><span class="small">Local da interface com uma função.</span></div>
+        <div class="card"><strong>Guia ou menu</strong><span class="small">Reúne assuntos, como Inserir ou Revisão.</span></div>
+        <div class="card"><strong>Grupo</strong><span class="small">Organiza comandos relacionados dentro da guia do Word.</span></div>
+        <div class="card"><strong>Comando</strong><span class="small">Executa uma ação, como Negrito, Tabela ou Compartilhar.</span></div>
+      </div>
+      <div class="callout" style="margin-top:20px"><strong>Exemplo no Word:</strong> guia Página Inicial, grupo Fonte, comando Negrito. <strong>Exemplo no Docs:</strong> menu Inserir, opção Tabela.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: tela inicial" aria-label="Slide 6">
+    <div class="header"><div><div class="eyebrow">Microsoft Word</div><h2>O trabalho começa com um arquivo ou um modelo</h2></div><div class="section-number">06</div></div>
+    <div class="content two-col equal">
+      <figure class="shot tall"><img src="../assets/slides/docs/word-modelos.png" alt="Tela do Word com modelos para criar um documento"><figcaption>Modelos disponíveis no Word. Imagem: Microsoft Support.</figcaption></figure>
+      <div class="stack">
+        <div class="card"><h3>Documento em branco</h3><p>Começa sem estrutura pronta. O usuário define estilos, margens, cabeçalhos e demais elementos.</p></div>
+        <div class="card"><h3>Modelo</h3><p>Oferece uma estrutura reutilizável. Pode servir de base para proposta, relatório, carta ou currículo.</p></div>
+        <div class="card gold-top"><h3>Nome recomendado</h3><p><strong>Proposta_Imovel_Centro_ClienteExemplo_v01.docx</strong></p><p class="small">Evite nomes como “documento novo final 2”.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: visão da área de trabalho" aria-label="Slide 7">
+    <div class="header"><div><div class="eyebrow">Microsoft Word</div><h2>A Faixa de Opções segue o padrão dos aplicativos Office</h2></div><div class="section-number">07</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/word-office-interface.png" alt="Interfaces do PowerPoint, Excel e Word mostrando o padrão de faixa de opções"><figcaption>O Word aparece na parte inferior, com barra de título, guias e Faixa de Opções. Imagem: Microsoft Support.</figcaption></figure>
+      <div class="card accent"><h3>Leitura de cima para baixo</h3><ol><li>Barra de título e acesso rápido</li><li>Linha de guias</li><li>Faixa de Opções com grupos</li><li>Régua e área do documento</li><li>Barra de status, modos de exibição e zoom</li></ol><p class="small">A aparência varia um pouco entre Windows, macOS e Word para a Web.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: barra de título" aria-label="Slide 8">
+    <div class="header"><div><div class="eyebrow">Área superior</div><h2>A barra de título identifica o arquivo e reúne controles gerais</h2></div><div class="section-number">08</div></div>
+    <div class="content two-col equal">
+      <div class="interface-list">
+        <div class="interface-item"><div><b>Nome do documento</b><span>Mostra qual arquivo está aberto. Em arquivos na nuvem, o nome pode ser alterado diretamente.</span></div></div>
+        <div class="interface-item"><div><b>Salvamento Automático</b><span>Registra mudanças continuamente quando o arquivo está em um local compatível na nuvem.</span></div></div>
+        <div class="interface-item"><div><b>Barra de Acesso Rápido</b><span>Atalhos sempre visíveis, como Salvar, Desfazer e Refazer.</span></div></div>
+      </div>
+      <div class="interface-list">
+        <div class="interface-item"><div><b>Pesquisa</b><span>Localiza comandos, ajuda e recursos sem percorrer todas as guias.</span></div></div>
+        <div class="interface-item"><div><b>Conta e compartilhamento</b><span>Exibe a conta ativa e oferece recursos de nuvem e colaboração.</span></div></div>
+        <div class="interface-item"><div><b>Controles da janela</b><span>Minimizar, maximizar ou restaurar e fechar o Word.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: faixa de opções" aria-label="Slide 9">
+    <div class="header"><div><div class="eyebrow">Navegação principal</div><h2>Guia, grupo e comando formam uma hierarquia visual</h2></div><div class="section-number">09</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/word-interface-faixa.png" alt="Faixa de opções do Word com guias, grupos e comandos destacados"><figcaption>Imagem oficial com a hierarquia da Faixa de Opções. Imagem: Microsoft Support.</figcaption></figure>
+      <div class="stack">
+        <div class="card word-top"><h3>1. Guia</h3><p class="small">Categoria ampla: Página Inicial, Inserir, Layout, Referências, Revisão ou Exibir.</p></div>
+        <div class="card word-top"><h3>2. Grupo</h3><p class="small">Conjunto de comandos relacionados. Na Página Inicial aparecem Fonte, Parágrafo e Estilos.</p></div>
+        <div class="card word-top"><h3>3. Comando</h3><p class="small">Botão, caixa ou lista que executa a ação desejada.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: como os comandos se apresentam" aria-label="Slide 10">
+    <div class="header"><div><div class="eyebrow">Faixa de Opções</div><h2>Nem todo comando parece apenas um botão</h2></div><div class="section-number">10</div></div>
+    <div class="content command-grid">
+      <div class="command"><div class="icon" style="margin:auto">B</div><b>Botão</b><span>Executa uma ação direta, como Negrito.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">⌄</div><b>Lista</b><span>Abre escolhas, como fonte ou espaçamento.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">11</div><b>Caixa</b><span>Recebe ou seleciona um valor, como tamanho.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">↘</div><b>Inicializador</b><span>Abre configurações detalhadas do grupo.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">⋯</div><b>Mais opções</b><span>Mostra comandos ocultos quando falta espaço.</span></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: Página Inicial" aria-label="Slide 11">
+    <div class="header"><div><div class="eyebrow">Guia Página Inicial</div><h2>Os comandos mais frequentes ficam reunidos</h2></div><div class="section-number">11</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/word-formatacao.png" alt="Faixa de opções do Word com ferramentas de formatação de texto"><figcaption>Recorte da guia Página Inicial. Imagem: Microsoft Support.</figcaption></figure>
+      <div class="card"><h3>Grupos principais</h3><ul class="clean-list"><li><strong>Área de Transferência:</strong> colar, recortar, copiar</li><li><strong>Fonte:</strong> tipo, tamanho, cor e ênfase</li><li><strong>Parágrafo:</strong> alinhamento, listas, recuos e espaçamento</li><li><strong>Estilos:</strong> títulos e texto normal</li><li><strong>Edição:</strong> localizar, substituir e selecionar</li></ul></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: Área de Transferência" aria-label="Slide 12">
+    <div class="header"><div><div class="eyebrow">Página Inicial • Grupo</div><h2>Área de Transferência move e reaproveita conteúdo</h2></div><div class="section-number">12</div></div>
+    <div class="content four-col">
+      <div class="card"><div class="icon">C</div><h3>Copiar</h3><p>Cria uma cópia temporária. Atalho: <strong>Ctrl + C</strong>.</p></div>
+      <div class="card"><div class="icon">X</div><h3>Recortar</h3><p>Remove do local para mover. Atalho: <strong>Ctrl + X</strong>.</p></div>
+      <div class="card"><div class="icon">V</div><h3>Colar</h3><p>Insere o conteúdo. Atalho: <strong>Ctrl + V</strong>.</p></div>
+      <div class="card gold-top"><div class="icon">T</div><h3>Somente texto</h3><p>Evita trazer formatação indesejada de páginas da internet.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: grupo Fonte" aria-label="Slide 13">
+    <div class="header"><div><div class="eyebrow">Página Inicial • Grupo Fonte</div><h2>Fonte define a aparência dos caracteres selecionados</h2></div><div class="section-number">13</div></div>
+    <div class="content two-col equal">
+      <div class="card word-top"><h3>Comandos comuns</h3><div class="three-col"><span class="pill">Tipo de fonte</span><span class="pill">Tamanho</span><span class="pill">Negrito</span><span class="pill">Itálico</span><span class="pill">Sublinhado</span><span class="pill">Cor</span><span class="pill">Realce</span><span class="pill">Maiúsculas</span><span class="pill">Limpar formatação</span></div></div>
+      <div class="card accent"><h3>Uso imobiliário</h3><ul class="clean-list"><li>Título da proposta com destaque moderado</li><li>Preço e condições com leitura clara</li><li>Observações importantes sem excesso de cores</li><li>Uma família tipográfica consistente</li></ul><p class="small">Se nada estiver selecionado, o comando afeta o texto digitado dali em diante.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: grupo Parágrafo" aria-label="Slide 14">
+    <div class="header"><div><div class="eyebrow">Página Inicial • Grupo Parágrafo</div><h2>Parágrafo controla a organização dos blocos de texto</h2></div><div class="section-number">14</div></div>
+    <div class="content">
+      <table class="compare">
+        <thead><tr><th>Comando</th><th>O que controla</th><th>Exemplo imobiliário</th></tr></thead>
+        <tbody>
+          <tr><td>Alinhamento</td><td>Esquerda, centro, direita ou justificado</td><td>Corpo de uma proposta alinhado à esquerda</td></tr>
+          <tr><td>Espaçamento</td><td>Distância entre linhas e entre parágrafos</td><td>Separação regular entre seções de um relatório</td></tr>
+          <tr><td>Recuo</td><td>Posição do parágrafo em relação às margens</td><td>Cláusula destacada ou citação</td></tr>
+          <tr><td>Listas</td><td>Marcadores, numeração e níveis</td><td>Características do imóvel ou etapas da vistoria</td></tr>
+          <tr><td>Mostrar tudo ¶</td><td>Marcas de parágrafo, espaços e quebras</td><td>Diagnóstico de páginas vazias e espaçamentos estranhos</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: grupo Estilos" aria-label="Slide 15">
+    <div class="header"><div><div class="eyebrow">Página Inicial • Grupo Estilos</div><h2>Estilos mantêm o documento consistente</h2></div><div class="section-number">15</div></div>
+    <div class="content two-col">
+      <div class="stack">
+        <div class="card word-top"><h3>Título</h3><p class="small">Nome principal do documento.</p></div>
+        <div class="card word-top"><h3>Título 1 e Título 2</h3><p class="small">Criam níveis de seção e alimentam o sumário automático.</p></div>
+        <div class="card word-top"><h3>Normal</h3><p class="small">Padrão do corpo do texto.</p></div>
+      </div>
+      <div class="card accent"><h3>Exemplo de estrutura</h3><ol><li><strong>Título:</strong> Proposta de Intermediação Imobiliária</li><li><strong>Título 1:</strong> Identificação do imóvel</li><li><strong>Título 1:</strong> Condições comerciais</li><li><strong>Título 2:</strong> Forma de pagamento</li><li><strong>Normal:</strong> conteúdo de cada seção</li></ol><p class="callout">Alterar o estilo uma vez atualiza todos os trechos que o utilizam.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: Localizar e Substituir" aria-label="Slide 16">
+    <div class="header"><div><div class="eyebrow">Página Inicial • Grupo Edição</div><h2>Pesquisa reduz o tempo de revisão</h2></div><div class="section-number">16</div></div>
+    <div class="content two-col equal">
+      <figure class="shot"><img src="../assets/slides/docs/word-localizar.png" alt="Menu Localizar do Word para a Web com opção Substituir"><figcaption>Localizar e Substituir no Word para a Web. Imagem: Microsoft Support.</figcaption></figure>
+      <div class="stack">
+        <div class="card"><h3>Localizar • Ctrl + F</h3><p>Encontra nome, endereço, valor ou cláusula dentro do documento.</p></div>
+        <div class="card"><h3>Substituir • Ctrl + H</h3><p>Troca uma ocorrência ou várias. Revise antes de usar “Substituir tudo”.</p></div>
+        <div class="callout"><strong>Exemplo:</strong> substituir um nome de empreendimento em uma proposta reaproveitada, conferindo cada ocorrência.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: guia Inserir" aria-label="Slide 17">
+    <div class="header"><div><div class="eyebrow">Guia Inserir</div><h2>Inserir adiciona elementos ao documento</h2></div><div class="section-number">17</div></div>
+    <div class="content four-col">
+      <div class="card"><div class="icon">▦</div><h3>Tabela</h3><p>Organiza áreas, valores, condições e cronogramas.</p></div>
+      <div class="card"><div class="icon">▧</div><h3>Imagem</h3><p>Apresenta imóvel, planta, mapa ou logotipo.</p></div>
+      <div class="card"><div class="icon">↗</div><h3>Link</h3><p>Conecta ao anúncio, mapa, tour virtual ou regulamento.</p></div>
+      <div class="card"><div class="icon">#</div><h3>Cabeçalho e página</h3><p>Repete marca, identificação e numeração.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: guia Layout" aria-label="Slide 18">
+    <div class="header"><div><div class="eyebrow">Guia Layout</div><h2>Layout controla a página e a disposição do conteúdo</h2></div><div class="section-number">18</div></div>
+    <div class="content two-col equal">
+      <div class="card word-top"><h3>Configurar Página</h3><ul class="clean-list"><li>Margens</li><li>Orientação retrato ou paisagem</li><li>Tamanho A4</li><li>Colunas</li><li>Quebras de página e de seção</li></ul></div>
+      <div class="card gold-top"><h3>Parágrafo e Organizar</h3><ul class="clean-list"><li>Recuos e espaçamentos</li><li>Posição de imagens</li><li>Quebra de texto</li><li>Alinhamento e ordem de objetos</li></ul><p class="small">Use uma quebra de página. Vários Enters podem mudar o layout quando o texto cresce.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: guia Revisão" aria-label="Slide 19">
+    <div class="header"><div><div class="eyebrow">Guia Revisão</div><h2>Revisão registra decisões sobre o texto</h2></div><div class="section-number">19</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/word-revisao.png" alt="Documento do Word com opções para aceitar ou rejeitar uma alteração controlada"><figcaption>Aceitar ou rejeitar uma alteração controlada. Imagem: Microsoft Support.</figcaption></figure>
+      <div class="stack">
+        <div class="card"><h3>Editor</h3><p class="small">Analisa ortografia, gramática e clareza.</p></div>
+        <div class="card"><h3>Comentários</h3><p class="small">Registra dúvidas e orientações sem alterar o corpo do texto.</p></div>
+        <div class="card"><h3>Controlar Alterações</h3><p class="small">Marca inserções e exclusões para aceitar ou rejeitar depois.</p></div>
+        <div class="card"><h3>Acessibilidade</h3><p class="small">Ajuda a identificar problemas para leitores de tela e outros usuários.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: área do documento" aria-label="Slide 20">
+    <div class="header"><div><div class="eyebrow">Área central e inferior</div><h2>O documento possui controles que não ficam na Faixa de Opções</h2></div><div class="section-number">20</div></div>
+    <div class="content two-col equal">
+      <div class="interface-list">
+        <div class="interface-item"><div><b>Régua</b><span>Controla recuos, tabulações e posição do texto.</span></div></div>
+        <div class="interface-item"><div><b>Área de edição</b><span>Mostra páginas, margens, texto e objetos inseridos.</span></div></div>
+        <div class="interface-item"><div><b>Ponto de inserção</b><span>Indica onde o próximo caractere ou objeto aparecerá.</span></div></div>
+      </div>
+      <div class="interface-list">
+        <div class="interface-item"><div><b>Barras de rolagem</b><span>Deslocam a visualização pelo documento.</span></div></div>
+        <div class="interface-item"><div><b>Barra de status</b><span>Informa página, número de palavras, idioma e estado do documento.</span></div></div>
+        <div class="interface-item"><div><b>Modos e zoom</b><span>Alteram somente a visualização. O zoom não muda o tamanho impresso.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Word: fluxo de trabalho" aria-label="Slide 21">
+    <div class="header"><div><div class="eyebrow">Aplicação</div><h2>Uma proposta imobiliária em sete decisões</h2></div><div class="section-number">21</div></div>
+    <div class="content">
+      <table class="compare">
+        <thead><tr><th>Etapa</th><th>Área do Word</th><th>Ação</th></tr></thead>
+        <tbody>
+          <tr><td>1. Nomear e salvar</td><td>Barra de título e Arquivo</td><td>Definir nome, local e formato</td></tr>
+          <tr><td>2. Estruturar</td><td>Página Inicial, grupo Estilos</td><td>Aplicar Título 1 e Título 2</td></tr>
+          <tr><td>3. Formatar</td><td>Grupos Fonte e Parágrafo</td><td>Ajustar hierarquia e leitura</td></tr>
+          <tr><td>4. Acrescentar dados</td><td>Guia Inserir</td><td>Adicionar tabela, imagem e links</td></tr>
+          <tr><td>5. Configurar página</td><td>Guia Layout</td><td>Margens, orientação e quebras</td></tr>
+          <tr><td>6. Revisar</td><td>Guia Revisão</td><td>Editor, comentários e alterações</td></tr>
+          <tr><td>7. Entregar</td><td>Arquivo e Compartilhar</td><td>Gerar PDF ou conceder acesso</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: visão geral" aria-label="Slide 22">
+    <div class="header"><div><div class="eyebrow">Google Docs</div><h2>O editor funciona no navegador e salva no Drive</h2></div><div class="section-number">22</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/docs-visao-geral.webp" alt="Interface do Google Docs com documento colaborativo e chamada de vídeo"><figcaption>Visão do Google Docs e recursos de colaboração. Imagem: Google Workspace.</figcaption></figure>
+      <div class="card docs-top"><h3>Características da área de trabalho</h3><ul class="clean-list"><li>Nome e estado do arquivo no alto</li><li>Menus de texto logo abaixo</li><li>Barra de ferramentas com atalhos</li><li>Área do documento ao centro</li><li>Compartilhamento e colaboração à direita</li><li>Painel lateral de aplicativos, quando ativado</li></ul></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: mapa da tela" aria-label="Slide 23">
+    <div class="header"><div><div class="eyebrow">Leitura da interface</div><h2>A tela organiza criação, edição e colaboração</h2></div><div class="section-number">23</div></div>
+    <div class="content two-col equal">
+      <div class="interface-list">
+        <div class="interface-item"><div><b>Nome e estado</b><span>Título do arquivo, localização e informação de salvamento.</span></div></div>
+        <div class="interface-item"><div><b>Barra de menus</b><span>Arquivo, Editar, Ver, Inserir, Formatar, Ferramentas, Extensões e Ajuda.</span></div></div>
+        <div class="interface-item"><div><b>Barra de ferramentas</b><span>Atalhos para as ações de edição e formatação mais usadas.</span></div></div>
+      </div>
+      <div class="interface-list">
+        <div class="interface-item"><div><b>Régua e documento</b><span>Recuos, margens e conteúdo em edição.</span></div></div>
+        <div class="interface-item"><div><b>Colaboração</b><span>Comentários, modo de edição, participantes e Compartilhar.</span></div></div>
+        <div class="interface-item"><div><b>Painéis auxiliares</b><span>Estrutura do documento, guias e aplicativos do Workspace.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: nome, estado e menus" aria-label="Slide 24">
+    <div class="header"><div><div class="eyebrow">Área superior</div><h2>O alto da tela informa qual documento está sendo editado</h2></div><div class="section-number">24</div></div>
+    <div class="content two-col equal">
+      <div class="card docs-top"><h3>Nome e estado</h3><ul class="clean-list"><li>Nome do documento</li><li>Estrela para destacar no Drive</li><li>Pasta de armazenamento</li><li>Estado de salvamento</li><li>Histórico de versões</li></ul></div>
+      <div class="card accent"><h3>Barra de menus</h3><p>Cada menu abre uma lista de comandos. A organização privilegia o tipo de ação.</p><div class="three-col"><span class="pill">Arquivo</span><span class="pill">Editar</span><span class="pill">Ver</span><span class="pill">Inserir</span><span class="pill">Formatar</span><span class="pill">Ferramentas</span><span class="pill">Extensões</span><span class="pill">Ajuda</span></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: menus" aria-label="Slide 25">
+    <div class="header"><div><div class="eyebrow">Barra de menus</div><h2>Os menus agrupam comandos por finalidade</h2></div><div class="section-number">25</div></div>
+    <div class="content">
+      <table class="compare">
+        <thead><tr><th>Menu</th><th>Exemplos de comandos</th><th>Uso no documento imobiliário</th></tr></thead>
+        <tbody>
+          <tr><td>Arquivo</td><td>Novo, abrir, fazer cópia, baixar, imprimir</td><td>Gerar uma versão PDF para envio</td></tr>
+          <tr><td>Editar</td><td>Desfazer, copiar, colar, localizar e substituir</td><td>Corrigir dados repetidos</td></tr>
+          <tr><td>Inserir</td><td>Imagem, tabela, link, cabeçalho, número de página</td><td>Adicionar dados e fotos do imóvel</td></tr>
+          <tr><td>Formatar</td><td>Texto, parágrafo, listas, colunas e estilos</td><td>Padronizar a apresentação</td></tr>
+          <tr><td>Ferramentas</td><td>Ortografia, contagem, digitação por voz e preferências</td><td>Revisar o texto e conferir extensão</td></tr>
+          <tr><td>Extensões</td><td>Complementos e automações instaladas</td><td>Usar integrações autorizadas pela organização</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: barra de ferramentas" aria-label="Slide 26">
+    <div class="header"><div><div class="eyebrow">Atalhos visuais</div><h2>A barra de ferramentas acelera as ações mais usadas</h2></div><div class="section-number">26</div></div>
+    <div class="content command-grid">
+      <div class="command"><div class="icon" style="margin:auto">↶</div><b>Histórico imediato</b><span>Desfazer e refazer.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">%</div><b>Visualização</b><span>Imprimir e zoom do documento.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">Aa</div><b>Texto</b><span>Estilo, fonte e tamanho.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">B</div><b>Ênfase</b><span>Negrito, itálico, sublinhado e cor.</span></div>
+      <div class="command"><div class="icon" style="margin:auto">¶</div><b>Parágrafo</b><span>Alinhamento, espaçamento, listas e recuos.</span></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: espaço e largura" aria-label="Slide 27">
+    <div class="header"><div><div class="eyebrow">Comportamento responsivo</div><h2>Alguns comandos podem ficar ocultos quando a janela estreita</h2></div><div class="section-number">27</div></div>
+    <div class="content two-col equal">
+      <div class="card docs-top"><h3>O que muda</h3><p>A barra de ferramentas reorganiza os comandos conforme o espaço disponível. Alguns aparecem no botão de mais opções.</p><p class="callout">Use a pesquisa de ferramentas ou abra o menu correspondente quando não encontrar um comando.</p></div>
+      <div class="card accent"><h3>O que não muda</h3><ul class="clean-list"><li>O conteúdo do documento</li><li>As permissões de acesso</li><li>O tamanho real da fonte</li><li>A estrutura criada com estilos</li></ul><p class="small">O zoom do navegador e o zoom do documento são controles diferentes.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: colaboração" aria-label="Slide 28">
+    <div class="header"><div><div class="eyebrow">Trabalho em equipe</div><h2>Colaboração aparece dentro do próprio documento</h2></div><div class="section-number">28</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/docs-colaboracao.webp" alt="Google Docs com pessoas e chips inteligentes dentro de um documento"><figcaption>Pessoas, datas, tarefas e outros chips inteligentes. Imagem: Google Workspace.</figcaption></figure>
+      <div class="stack">
+        <div class="card"><h3>Cursores e presença</h3><p class="small">Identificam quem está no documento e onde cada pessoa edita.</p></div>
+        <div class="card"><h3>Comentários e tarefas</h3><p class="small">Permitem discutir um trecho e atribuir uma pendência.</p></div>
+        <div class="card"><h3>Chips inteligentes</h3><p class="small">Conectam pessoas, arquivos, datas e outros elementos do Workspace.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: compartilhamento" aria-label="Slide 29">
+    <div class="header"><div><div class="eyebrow">Permissões</div><h2>Compartilhar exige escolher quem pode fazer o quê</h2></div><div class="section-number">29</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/docs-permissoes.webp" alt="Janela de compartilhamento do Google Docs com permissões de leitor, comentador e editor"><figcaption>Níveis de acesso em um documento Google. Imagem: Google Workspace.</figcaption></figure>
+      <div class="stack">
+        <div class="card"><h3>Leitor</h3><p class="small">Visualiza, sem comentar ou alterar o documento.</p></div>
+        <div class="card"><h3>Comentador</h3><p class="small">Visualiza, comenta e pode sugerir, conforme o recurso disponível.</p></div>
+        <div class="card"><h3>Editor</h3><p class="small">Altera o conteúdo e pode realizar outras ações permitidas.</p></div>
+        <div class="callout"><strong>Atenção:</strong> dados de clientes, contratos e documentos pessoais não devem ficar em links públicos.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: comentários e sugestões" aria-label="Slide 30">
+    <div class="header"><div><div class="eyebrow">Revisão colaborativa</div><h2>Comentar e sugerir preservam o texto original durante a análise</h2></div><div class="section-number">30</div></div>
+    <div class="content three-col">
+      <div class="card docs-top"><div class="icon">✎</div><h3>Editar</h3><p>Altera diretamente o documento. Use quando a pessoa tem responsabilidade sobre a redação final.</p></div>
+      <div class="card gold-top"><div class="icon">＋</div><h3>Sugerir</h3><p>Apresenta mudanças que o responsável pode aceitar ou rejeitar.</p></div>
+      <div class="card accent"><div class="icon">?</div><h3>Comentar</h3><p>Registra dúvida, orientação ou decisão sem modificar o texto.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: histórico de versões" aria-label="Slide 31">
+    <div class="header"><div><div class="eyebrow">Rastreabilidade</div><h2>O histórico mostra quando e por quem o arquivo mudou</h2></div><div class="section-number">31</div></div>
+    <div class="content two-col">
+      <figure class="shot"><img src="../assets/slides/docs/docs-historico.webp" alt="Google Docs exibindo histórico de versões ao lado do documento"><figcaption>Histórico de versões de um documento Google. Imagem: Google Workspace.</figcaption></figure>
+      <div class="card accent"><h3>Usos principais</h3><ul class="clean-list"><li>Identificar alterações de cada colaborador</li><li>Nomear versões importantes</li><li>Comparar momentos do trabalho</li><li>Restaurar uma versão anterior</li></ul><p class="callout">Histórico ajuda a recuperar o trabalho, mas não substitui a revisão dos dados antes do envio.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Google Docs: arquivo final" aria-label="Slide 32">
+    <div class="header"><div><div class="eyebrow">Entrega e assinatura</div><h2>O formato final depende do destino do documento</h2></div><div class="section-number">32</div></div>
+    <div class="content two-col">
+      <div class="stack">
+        <div class="card"><h3>Continuar colaborando</h3><p>Mantenha o documento no Drive e compartilhe com a permissão correta.</p></div>
+        <div class="card"><h3>Editar no Word</h3><p>Baixe em formato Microsoft Word (.docx) e confira a formatação.</p></div>
+        <div class="card"><h3>Enviar versão final</h3><p>Baixe em PDF para preservar melhor a apresentação visual.</p></div>
+      </div>
+      <figure class="shot"><img src="../assets/slides/docs/docs-assinatura.webp" alt="Documento no Google Docs com recurso de assinatura eletrônica"><figcaption>Exemplo do recurso de assinatura eletrônica. A disponibilidade depende do plano. Imagem: Google Workspace.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Padrão de documento imobiliário" aria-label="Slide 33">
+    <div class="header"><div><div class="eyebrow">Modelo mental</div><h2>Uma estrutura simples facilita leitura e conferência</h2></div><div class="section-number">33</div></div>
+    <div class="content">
+      <table class="compare">
+        <thead><tr><th>Parte</th><th>Conteúdo</th><th>Recurso recomendado</th></tr></thead>
+        <tbody>
+          <tr><td>Identificação</td><td>Empresa, responsável, cliente e data</td><td>Cabeçalho, tabela simples ou campos</td></tr>
+          <tr><td>Título</td><td>Finalidade clara do documento</td><td>Estilo Título</td></tr>
+          <tr><td>Seções</td><td>Imóvel, condições, responsabilidades e anexos</td><td>Título 1 e Título 2</td></tr>
+          <tr><td>Dados comparáveis</td><td>Áreas, valores, prazos e itens</td><td>Tabela com cabeçalho</td></tr>
+          <tr><td>Elementos visuais</td><td>Foto, mapa, planta ou logotipo</td><td>Imagem com legenda e texto alternativo</td></tr>
+          <tr><td>Fechamento</td><td>Contato, observações, assinaturas e versão</td><td>Rodapé, revisão e PDF final</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Atividade prática" aria-label="Slide 34">
+    <div class="header"><div><div class="eyebrow">Mão na massa</div><h2>Ficha de apresentação de um imóvel fictício</h2></div><div class="section-number">34</div></div>
+    <div class="content two-col equal">
+      <div class="checklist">
+        <label class="check-item"><input type="checkbox"> Nomear o arquivo com clareza</label>
+        <label class="check-item"><input type="checkbox"> Criar título e duas seções com estilos</label>
+        <label class="check-item"><input type="checkbox"> Escrever descrição em dois parágrafos</label>
+        <label class="check-item"><input type="checkbox"> Inserir tabela com área, quartos e valor</label>
+      </div>
+      <div class="checklist">
+        <label class="check-item"><input type="checkbox"> Inserir uma imagem livre ou fornecida pelo professor</label>
+        <label class="check-item"><input type="checkbox"> Adicionar legenda e texto alternativo</label>
+        <label class="check-item"><input type="checkbox"> Revisar ortografia e consistência</label>
+        <label class="check-item"><input type="checkbox"> Exportar em PDF e conferir a última página</label>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Desafio de escolha" aria-label="Slide 35">
+    <div class="header"><div><div class="eyebrow">Decisão</div><h2>Qual recurso atende melhor cada necessidade?</h2></div><div class="section-number">35</div></div>
+    <div class="content">
+      <div class="scenario-grid">
+        <button class="scenario-btn" data-answer="Use Estilos de Título e gere um sumário automático.">Relatório longo com seções que mudam de página</button>
+        <button class="scenario-btn" data-answer="Use Comentário quando quiser discutir sem alterar o conteúdo.">Registrar uma dúvida para o responsável pelo contrato</button>
+        <button class="scenario-btn" data-answer="Use Controlar Alterações no Word ou modo Sugestão no Google Docs.">Propor nova redação sem apagar silenciosamente a versão anterior</button>
+        <button class="scenario-btn" data-answer="Exporte para PDF e confira o resultado antes de enviar.">Entregar uma versão cujo layout deve permanecer estável</button>
+      </div>
+      <div class="callout scenario-result" id="scenarioResult">Selecione uma situação para revelar a resposta.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Atalhos essenciais" aria-label="Slide 36">
+    <div class="header"><div><div class="eyebrow">Produtividade</div><h2>Atalhos úteis nos dois editores</h2></div><div class="section-number">36</div></div>
+    <div class="content shortcut-grid">
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">S</span></div><h3>Salvar</h3><p class="small">No Docs, o salvamento é automático, mas o atalho é reconhecido pelo navegador.</p></div>
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">Z</span></div><h3>Desfazer</h3><p class="small">Volta a ação anterior.</p></div>
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">F</span></div><h3>Localizar</h3><p class="small">Encontra texto no arquivo.</p></div>
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">H</span></div><h3>Substituir</h3><p class="small">Troca texto com revisão.</p></div>
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">B</span></div><h3>Negrito</h3><p class="small">Aplica ou remove ênfase.</p></div>
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">K</span></div><h3>Link</h3><p class="small">Insere ou edita um hiperlink.</p></div>
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">A</span></div><h3>Selecionar tudo</h3><p class="small">Seleciona o conteúdo do documento.</p></div>
+      <div class="card shortcut"><div class="keys"><span class="kbd">Ctrl</span><span>+</span><span class="kbd">Enter</span></div><h3>Quebra de página</h3><p class="small">Inicia uma nova página de modo controlado.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Quiz" aria-label="Slide 37">
+    <div class="header"><div><div class="eyebrow">Quiz final</div><h2>Interface e documentos profissionais</h2></div><div class="section-number">37</div></div>
+    <div class="content quiz-wrap">
+      <div class="quiz-meta"><span id="quizProgress">Questão 1 de 10</span><span id="quizScore">0 ponto</span></div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div class="options" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback">Escolha uma alternativa.</div>
+      <button class="quiz-next" id="quizNext">Próxima questão</button>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Resultado do quiz" aria-label="Slide 38">
+    <div class="header"><div><div class="eyebrow">Resultado</div><h2>Seu desempenho</h2></div><div class="section-number">38</div></div>
+    <div class="content result-screen">
+      <div class="medal" id="resultMedal">⌛</div>
+      <p class="result-score" id="resultScore">0/10</p>
+      <p class="lead" id="resultMessage" style="margin:12px auto">Conclua o quiz para ver o resultado.</p>
+      <button class="quiz-next visible" id="quizRestart" style="margin:18px auto 0">Refazer o quiz</button>
+    </div>
+  </section>
+
+  <section class="slide closing" data-title="Síntese" aria-label="Slide 39">
+    <div class="header"><div><div class="eyebrow">Fechamento</div><h2>Três ideias para levar à prática</h2></div><div class="section-number">39</div></div>
+    <div class="content">
+      <div class="takeaways">
+        <div class="takeaway"><div class="big">1</div><h3>Leia a interface por níveis</h3><p>Área, guia ou menu, grupo e comando ajudam a encontrar qualquer ferramenta.</p></div>
+        <div class="takeaway"><div class="big">2</div><h3>Estruture antes de decorar</h3><p>Estilos, parágrafos e tabelas produzem consistência e facilitam a revisão.</p></div>
+        <div class="takeaway"><div class="big">3</div><h3>Compartilhe com critério</h3><p>Escolha a permissão correta, proteja dados e confira o PDF antes do envio.</p></div>
+      </div>
+      <p class="callout" style="margin-top:28px"><strong>Bilhete de saída:</strong> escreva o nome de uma área da interface e um comando que você usará na atividade imobiliária.</p>
+    </div>
+  </section>
+
+  <nav class="controls" aria-label="Navegação da apresentação">
+    <button class="nav-btn" id="prevBtn" title="Slide anterior">←</button>
+    <div class="slide-counter" id="slideCounter">1 / 39</div>
+    <button class="nav-btn" id="nextBtn" title="Próximo slide">→</button>
+  </nav>
+
+  <div class="modal" id="overviewModal"><div class="modal-card"><button class="modal-close" data-close="overviewModal">×</button><h2>Visão geral da aula</h2><div class="overview-grid" id="overviewGrid"></div></div></div>
+  <div class="modal" id="sourcesModal"><div class="modal-card"><button class="modal-close" data-close="sourcesModal">×</button><h2>Fontes e créditos</h2><div class="source-list">
+    <div class="source-item"><b>Microsoft Support</b><a href="https://support.microsoft.com/pt-br/word/customize-the-ribbon-in-word" target="_blank" rel="noopener">Faixa de Opções: guias, grupos e comandos</a></div>
+    <div class="source-item"><b>Microsoft Support</b><a href="https://support.microsoft.com/pt-br/word/training/create-a-document-in-word" target="_blank" rel="noopener">Criar e formatar documentos no Word</a></div>
+    <div class="source-item"><b>Microsoft Support</b><a href="https://support.microsoft.com/pt-br/word/training/track-changes-in-word" target="_blank" rel="noopener">Controlar Alterações</a></div>
+    <div class="source-item"><b>Microsoft Support</b><a href="https://support.microsoft.com/en-us/word/using-the-simplified-ribbon-in-word-for-the-web" target="_blank" rel="noopener">Faixa de Opções simplificada no Word para a Web</a></div>
+    <div class="source-item"><b>Google Workspace</b><a href="https://workspace.google.com/intl/pt-BR/products/docs/" target="_blank" rel="noopener">Página oficial do Google Docs</a></div>
+    <div class="source-item"><b>Google Workspace Learning Center</b><a href="https://support.google.com/a/users/answer/9299931" target="_blank" rel="noopener">Guia rápido do Google Docs</a></div>
+    <div class="source-item"><b>Google Docs Editors Help</b><a href="https://support.google.com/docs/answer/7068618?hl=pt-BR" target="_blank" rel="noopener">Como usar o Google Docs</a></div>
+    <div class="source-item"><b>Google Docs Editors Help</b><a href="https://support.google.com/docs/answer/2494822?hl=pt-BR" target="_blank" rel="noopener">Compartilhar arquivos pelo Google Drive</a></div>
+    <div class="source-item"><b>Google Docs Editors Help</b><a href="https://support.google.com/docs/answer/6033474?hl=pt-BR" target="_blank" rel="noopener">Sugerir edições no Google Docs</a></div>
+    <div class="source-item"><b>Observação</b><span class="small">Menus, nomes e disponibilidade de recursos podem variar conforme sistema, plano, idioma, tamanho da janela e atualização do serviço.</span></div>
+  </div></div></div>
+  <div class="modal" id="helpModal"><div class="modal-card"><button class="modal-close" data-close="helpModal">×</button><h2>Como usar</h2><div class="two-col equal">
+    <div class="card"><h3>Navegação</h3><p>Use os botões, as setas do teclado, Page Up e Page Down. Home vai ao primeiro slide e End ao último.</p></div>
+    <div class="card"><h3>Tela cheia</h3><p>Pressione F ou use o botão Tela cheia. Esc fecha janelas e sai da tela cheia.</p></div>
+    <div class="card"><h3>Atividades</h3><p>Marque a lista prática, explore os cenários e responda às dez questões do quiz.</p></div>
+    <div class="card"><h3>Zoom</h3><p>As imagens são arquivos estáticos e se ajustam à tela sem elementos desenhados sobre elas.</p></div>
+  </div></div></div>
+</main>
+<script>
+  const slides=[...document.querySelectorAll(".slide")];
+  const progressBar=document.getElementById("progressBar");
+  const slideCounter=document.getElementById("slideCounter");
+  const prevBtn=document.getElementById("prevBtn");
+  const nextBtn=document.getElementById("nextBtn");
+  let current=0;
+  function showSlide(index){
+    current=Math.max(0,Math.min(slides.length-1,index));
+    slides.forEach(function(slide,i){slide.classList.toggle("active",i===current)});
+    progressBar.style.width=((current+1)/slides.length*100)+"%";
+    slideCounter.textContent=(current+1)+" / "+slides.length;
+    prevBtn.disabled=current===0;nextBtn.disabled=current===slides.length-1;
+    document.querySelectorAll(".overview-item").forEach(function(item,i){item.setAttribute("aria-current",i===current?"true":"false")});
+  }
+  prevBtn.addEventListener("click",function(){showSlide(current-1)});
+  nextBtn.addEventListener("click",function(){showSlide(current+1)});
+  document.addEventListener("keydown",function(event){
+    if(document.querySelector(".modal.open")){
+      if(event.key==="Escape")document.querySelector(".modal.open").classList.remove("open");
+      return;
+    }
+    if(["ArrowRight","PageDown"," "].includes(event.key)){event.preventDefault();showSlide(current+1)}
+    if(["ArrowLeft","PageUp"].includes(event.key)){event.preventDefault();showSlide(current-1)}
+    if(event.key==="Home")showSlide(0);
+    if(event.key==="End")showSlide(slides.length-1);
+    if(event.key.toLowerCase()==="f"){
+      if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen();
+    }
+  });
+  let touchStart=null;
+  document.addEventListener("touchstart",function(event){touchStart=event.changedTouches[0].clientX},{passive:true});
+  document.addEventListener("touchend",function(event){if(touchStart===null)return;const delta=event.changedTouches[0].clientX-touchStart;if(Math.abs(delta)>55)showSlide(current+(delta<0?1:-1));touchStart=null},{passive:true});
+  document.querySelectorAll("[data-modal]").forEach(function(button){button.addEventListener("click",function(){document.getElementById(button.dataset.modal).classList.add("open")})});
+  document.querySelectorAll("[data-close]").forEach(function(button){button.addEventListener("click",function(){document.getElementById(button.dataset.close).classList.remove("open")})});
+  document.querySelectorAll(".modal").forEach(function(modal){modal.addEventListener("click",function(event){if(event.target===modal)modal.classList.remove("open")})});
+  document.getElementById("fullscreenBtn").addEventListener("click",function(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()});
+  const overviewGrid=document.getElementById("overviewGrid");
+  slides.forEach(function(slide,i){
+    const button=document.createElement("button");
+    button.className="overview-item";
+    button.innerHTML="<b>Slide "+String(i+1).padStart(2,"0")+"</b>"+slide.dataset.title;
+    button.addEventListener("click",function(){showSlide(i);document.getElementById("overviewModal").classList.remove("open")});
+    overviewGrid.appendChild(button);
+  });
+  document.querySelectorAll(".check-item").forEach(function(item){item.addEventListener("change",function(){item.classList.toggle("done",item.querySelector("input").checked)})});
+  document.querySelectorAll(".scenario-btn").forEach(function(button){button.addEventListener("click",function(){document.querySelectorAll(".scenario-btn").forEach(function(item){item.classList.remove("selected")});button.classList.add("selected");document.getElementById("scenarioResult").textContent=button.dataset.answer})});
+  const quizData=[
+    {q:"No Word, qual sequência localiza o comando Negrito?",a:["Guia Inserir, grupo Tabelas","Guia Página Inicial, grupo Fonte","Guia Layout, grupo Organizar","Guia Revisão, grupo Comentários"],c:1,e:"Negrito fica na guia Página Inicial, dentro do grupo Fonte."},
+    {q:"O que é um grupo de comandos na Faixa de Opções?",a:["Um arquivo salvo no OneDrive","Uma coleção de ações relacionadas dentro de uma guia","O nome dado ao documento","Uma página do relatório"],c:1,e:"O grupo reúne comandos relacionados, como Fonte ou Parágrafo."},
+    {q:"Qual área do Word mostra página, contagem de palavras e zoom?",a:["Barra de status","Barra de título","Grupo Estilos","Guia Inserir"],c:0,e:"A barra de status fica na parte inferior e exibe informações e controles de visualização."},
+    {q:"Qual recurso organiza capítulos e permite criar sumário automático?",a:["Cores de fonte","Estilos de Título","Caixas de texto","Vários espaços"],c:1,e:"Os Estilos de Título criam níveis estruturais usados pelo sumário."},
+    {q:"Qual comando inicia outra página sem depender de vários Enters?",a:["Quebra de página","Zoom","Recuo","Localizar"],c:0,e:"A quebra de página inicia a nova página de forma controlada."},
+    {q:"No Google Docs, onde aparecem opções como baixar, fazer cópia e imprimir?",a:["Menu Arquivo","Menu Formatar","Barra lateral","Régua"],c:0,e:"Essas ações ficam no menu Arquivo."},
+    {q:"Qual permissão é adequada para alguém que deve apenas ler?",a:["Editor","Proprietário","Leitor","Administrador"],c:2,e:"Leitor visualiza o documento sem alterar o conteúdo."},
+    {q:"Qual modo permite propor uma alteração para aprovação no Google Docs?",a:["Visualização","Sugestão","Tela cheia","Modo sem páginas"],c:1,e:"O modo Sugestão registra a proposta para aceitar ou rejeitar."},
+    {q:"O que o zoom do Word ou do Google Docs altera?",a:["O tamanho impresso da fonte","Somente a visualização na tela","A permissão do arquivo","O formato DOCX"],c:1,e:"Zoom aproxima ou afasta a visualização, sem mudar o tamanho real do conteúdo."},
+    {q:"Qual formato é mais indicado para enviar uma versão final com layout estável?",a:["TXT","PDF","HTML editável","Arquivo temporário"],c:1,e:"O PDF preserva melhor a apresentação final em outros dispositivos."}
+  ];
+  let quizIndex=0,score=0,quizFinished=false;
+  const quizQuestion=document.getElementById("quizQuestion");
+  const quizOptions=document.getElementById("quizOptions");
+  const quizFeedback=document.getElementById("quizFeedback");
+  const quizNext=document.getElementById("quizNext");
+  function renderQuestion(){
+    const item=quizData[quizIndex];
+    document.getElementById("quizProgress").textContent="Questão "+(quizIndex+1)+" de "+quizData.length;
+    document.getElementById("quizScore").textContent=score+(score===1?" ponto":" pontos");
+    quizQuestion.textContent=item.q;quizOptions.innerHTML="";quizFeedback.textContent="Escolha uma alternativa.";quizNext.classList.remove("visible");
+    item.a.forEach(function(label,i){
+      const button=document.createElement("button");button.className="option";
+      button.innerHTML="<span class=\"letter\">"+String.fromCharCode(65+i)+"</span><span>"+label+"</span>";
+      button.addEventListener("click",function(){answerQuestion(i,button)});quizOptions.appendChild(button);
+    });
+  }
+  function answerQuestion(choice,button){
+    const item=quizData[quizIndex];const buttons=[...quizOptions.querySelectorAll(".option")];
+    buttons.forEach(function(b){b.disabled=true});
+    if(choice===item.c){score++;button.classList.add("correct");quizFeedback.textContent="Correto. "+item.e}
+    else{button.classList.add("wrong");buttons[item.c].classList.add("correct");quizFeedback.textContent="Revise. "+item.e}
+    document.getElementById("quizScore").textContent=score+(score===1?" ponto":" pontos");
+    quizNext.textContent=quizIndex===quizData.length-1?"Ver resultado":"Próxima questão";quizNext.classList.add("visible");
+  }
+  function finishQuiz(){
+    quizFinished=true;document.getElementById("resultScore").textContent=score+"/10";
+    const medal=document.getElementById("resultMedal"),message=document.getElementById("resultMessage");
+    if(score>=9){medal.textContent="★";message.textContent="Excelente. Você reconhece as áreas e sabe relacioná-las às tarefas."}
+    else if(score>=7){medal.textContent="◆";message.textContent="Muito bom. Revise apenas os comandos que ainda geraram dúvida."}
+    else if(score>=5){medal.textContent="●";message.textContent="Bom começo. Retome os slides de interface e tente novamente."}
+    else{medal.textContent="↻";message.textContent="Revise a hierarquia das interfaces antes de refazer o quiz."}
+    showSlide(37);
+  }
+  quizNext.addEventListener("click",function(){if(quizIndex<quizData.length-1){quizIndex++;renderQuestion()}else finishQuiz()});
+  document.getElementById("quizRestart").addEventListener("click",function(){quizIndex=0;score=0;quizFinished=false;renderQuestion();showSlide(36)});
+  renderQuestion();showSlide(0);
+</script>
+</body>
+</html>

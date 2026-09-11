@@ -45,7 +45,21 @@ window.AULAS = [
     slides: 26,
     duracao: "Aula interativa",
     status: "disponivel",
-    destaque: true,
+    destaque: false,
     arquivo: "./slides/03-sistemas-operacionais.html"
+  },
+  {
+    numero: 4,
+    titulo: "Microsoft Word e Google Docs",
+    resumo: "Áreas de trabalho, barra de título, Faixa de Opções, menus, grupos de comandos e ferramentas para produzir documentos profissionais na rotina imobiliária.",
+    topicos: ["Microsoft Word", "Google Docs", "Documentos profissionais"],
+    icone: "W",
+    estilo: "documents",
+    data: "11 set. 2026",
+    slides: 39,
+    duracao: "Aula interativa",
+    status: "disponivel",
+    destaque: true,
+    arquivo: "./slides/04-word-google-docs.html"
   }
 ];
