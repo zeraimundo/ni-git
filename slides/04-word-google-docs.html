@@ -663,6 +663,9 @@
     {q:"O que o zoom do Word ou do Google Docs altera?",a:["O tamanho impresso da fonte","Somente a visualização na tela","A permissão do arquivo","O formato DOCX"],c:1,e:"Zoom aproxima ou afasta a visualização, sem mudar o tamanho real do conteúdo."},
     {q:"Qual formato é mais indicado para enviar uma versão final com layout estável?",a:["TXT","PDF","HTML editável","Arquivo temporário"],c:1,e:"O PDF preserva melhor a apresentação final em outros dispositivos."}
   ];
+/* QUIZ_SHUFFLE:quizData */
+(()=>{const q=quizData;if(!Array.isArray(q)||!q.length)return;const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};const pos=sh(q.map((_,i)=>i%4));q.forEach((it,n)=>{let o=null,c=null;if(Array.isArray(it.o)&&Number.isInteger(it.a)){o='o';c='a'}else if(Array.isArray(it.a)&&Number.isInteger(it.c)){o='a';c='c'}else if(Array.isArray(it.options)&&Number.isInteger(it.correctIndex)){o='options';c='correctIndex'}else if(Array.isArray(it.options)&&Number.isInteger(it.correct)){o='options';c='correct'}else if(Array.isArray(it.answers)&&Number.isInteger(it.correct)){o='answers';c='correct'}if(!o)return;const ar=it[o],idx=it[c];if(idx<0||idx>=ar.length||ar.length<2)return;const right=ar[idx],rest=ar.filter((_,i)=>i!==idx);sh(rest);const t=pos[n]%ar.length;rest.splice(t,0,right);it[o]=rest;it[c]=t})})();
+
   let quizIndex=0,score=0,quizFinished=false;
   const quizQuestion=document.getElementById("quizQuestion");
   const quizOptions=document.getElementById("quizOptions");
