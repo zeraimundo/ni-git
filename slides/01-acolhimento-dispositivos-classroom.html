@@ -694,6 +694,9 @@
       { q: 'Depois de anexar o arquivo à atividade, o que deve ser feito?', a: ['Fechar imediatamente', 'Clicar em Entregar e confirmar o status', 'Apagar o arquivo original', 'Trocar de conta'], c: 1, e: 'Anexar não é o mesmo que entregar. É necessário clicar em Entregar e observar a confirmação.' },
       { q: 'Qual prática aumenta a segurança de uma conta?', a: ['Reutilizar a mesma senha', 'Clicar em toda mensagem urgente', 'Ativar verificação em duas etapas', 'Compartilhar a senha com colegas'], c: 2, e: 'A verificação em duas etapas adiciona uma segunda barreira além da senha.' }
     ];
+/* QUIZ_SHUFFLE:quiz */
+(()=>{const __q=quiz;if(!Array.isArray(__q)||!__q.length)return;const __sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};const __pos=__sh(__q.map((_,i)=>i%4));__q.forEach((it,qi)=>{let ok=null,ck=null;if(Array.isArray(it.o)&&Number.isInteger(it.a)){ok='o';ck='a'}else if(Array.isArray(it.a)&&Number.isInteger(it.c)){ok='a';ck='c'}else if(Array.isArray(it.options)&&Number.isInteger(it.correctIndex)){ok='options';ck='correctIndex'}else if(Array.isArray(it.options)&&Number.isInteger(it.correct)){ok='options';ck='correct'}else if(Array.isArray(it.answers)&&Number.isInteger(it.correct)){ok='answers';ck='correct'}if(!ok)return;const opts=it[ok],idx=it[ck];if(idx<0||idx>=opts.length||opts.length<2)return;const right=opts[idx],rest=opts.filter((_,i)=>i!==idx);__sh(rest);const target=__pos[qi]%opts.length;rest.splice(target,0,right);it[ok]=rest;it[ck]=target})})();
+
     let qi = 0, score = 0, answered = false;
     const quizQuestion = document.getElementById('quizQuestion');
     const quizOptions = document.getElementById('quizOptions');
