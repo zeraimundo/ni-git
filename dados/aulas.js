@@ -59,7 +59,21 @@ window.AULAS = [
     slides: 39,
     duracao: "Aula interativa",
     status: "disponivel",
-    destaque: true,
+    destaque: false,
     arquivo: "./slides/04-word-google-docs.html"
+  },
+  {
+    numero: 5,
+    titulo: "Microsoft Excel 365",
+    resumo: "Interface, organização de dados, fórmulas, funções, pesquisas, gráficos e tabela dinâmica aplicados à carteira de imóveis e às negociações imobiliárias.",
+    topicos: ["Microsoft Excel", "Fórmulas e funções", "Análise de dados"],
+    icone: "X",
+    estilo: "spreadsheets",
+    data: "28 set. 2026",
+    slides: 61,
+    duracao: "Aula interativa",
+    status: "disponivel",
+    destaque: true,
+    arquivo: "./slides/05-excel-negocios-imobiliarios.html"
   }
 ];
